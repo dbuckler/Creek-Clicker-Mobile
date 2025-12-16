@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creek Clicker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #1d3720;
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .clicker-section {
+            flex: 0 0 300px;
+        }
+        
+        .clicker-box {
+            background-color: #a49659;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: inline-block;
+            width: auto;
+        }
+        
+        .achievements-box {
+            background-color: #a49659;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: visible;
+        }
+        
+        .mobile-achievements {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-achievements {
+        display: none;
+    }
+    
+    .mobile-achievements {
+        display: block;
+    }
+}
+        
+        .achievements-title {
+            color: #1d3720;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: visible; /* ADD THIS */
+        }
+        
+        .achievement {
+            font-size: 32px;
+            cursor: pointer;
+            position: relative;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .achievement.locked {
+            filter: grayscale(100%) brightness(0.5);
+            opacity: 0.3;
+        }
+        
+        .achievement.unlocked {
+            animation: unlock 0.5s ease-out;
+        }
+        
+        .achievement:hover {
+            transform: scale(1.2);
+        }
+        
+        @keyframes unlock {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .achievement-tooltip {
+            position: absolute;
+            background-color: #1d3720;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 5px;
+        }
+        
+        .achievement-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1d3720;
+        }
+        
+        .achievement:hover .achievement-tooltip {
+            opacity: 10;
+        }
+        
+        .achievements-progress {
+            color: #1d3720;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .droplet-count {
+            color: #1d3720;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .per-second {
+            color: #1d3720;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .all-time-count {
+            color: #1d3720;
+            font-size: 12px;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        
+        .droplet-button {
+            font-size: 120px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .floating-number {
+            position: fixed;
+            color: #1d3720;
+            font-weight: bold;
+            font-size: 20px;
+            pointer-events: none;
+            animation: float 1s ease-out forwards;
+            z-index: 9999;
+        }
+        
+        @keyframes float {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .producers-box, .upgrades-box {
+            background-color: #a49659;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+        
+        .producers-box {
+            max-height: 400px;
+        }
+        
+        .upgrades-box {
+            max-height: 300px;
+        }
+        
+        .producers-box h2, .upgrades-box h2 {
+            color: #1d3720;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .item.available {
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+        
+        .item.unavailable {
+            background-color: #e8e8e8;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .item-emoji {
+            font-size: 24px;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-name {
+            color: #1d3720;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .item-desc {
+            color: #1d3720;
+            font-size: 11px;
+        }
+        
+        .item-stats {
+            color: #1d3720;
+            font-size: 11px;
+        }
+        
+        .item.bought {
+            background-color: #d4edda;
+            opacity: 0.8;
+        }
+        
+        .item.bought .item-name::before {
+            content: '✓ ';
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .website-link {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #a49659;
+            border-radius: 10px;
+        }
+        
+        .website-link a {
+            color: #1d3720;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        
+        .website-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .reset-button {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .reset-button button {
+            background-color: #8b0000;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .reset-button button:hover {
+            background-color: #a52a2a;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .modal-content h3 {
+            color: #1d3720;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content p {
+            color: #1d3720;
+            margin-bottom: 20px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-confirm {
+            background-color: #8b0000;
+            color: white;
+        }
+        
+        .modal-confirm:hover {
+            background-color: #a52a2a;
+        }
+        
+        .modal-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .modal-cancel:hover {
+            background-color: #5a6268;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+                margin-bottom: 20px;
+            }
+            
+            .container {
+                flex-direction: column;
+            }
+            
+            .clicker-section {
+                flex: none;
+                width: 100%;
+            }
+            
+            .clicker-box {
+                width: 100%;
+            }
+            
+            .droplet-button {
+                font-size: 100px;
+            }
+            
+            .producers-box, .upgrades-box {
+                max-height: 300px;
+            }
+            
+            .item {
+                padding: 12px;
+            }
+            
+            .item-emoji {
+                font-size: 28px;
+            }
+            
+            .item-name {
+                font-size: 16px;
+            }
+            
+            .item-desc {
+                font-size: 13px;
+            }
+            
+            .item-stats {
+                font-size: 12px;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                max-width: 90%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .droplet-button {
+                font-size: 80px;
+            }
+            
+            .droplet-count {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Creek Clicker</h1>
+    
+    <div class="container">
+        <div class="clicker-section">
+    <div class="clicker-box">
+        <div class="droplet-count" id="dropletCount">0 droplets</div>
+        <div class="per-second" id="perSecond">per second: 0</div>
+        <div style="position: relative;"><button class="droplet-button" id="dropletButton">💧</button></div>
+        <div class="all-time-count" id="allTimeCount">all time: 0</div>
+    </div>
+    
+    <div class="achievements-box desktop-achievements">
+        <div class="achievements-title">Achievements</div>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+        <div class="achievements-progress" id="achievementsProgress">0 / 0 unlocked</div>
+    </div>
+</div>
+        
+        <div class="right-section">
+            <div class="producers-box">
+                <h2>Producers</h2>
+                <div id="producersContainer"></div>
+            </div>
+            
+            <div class="upgrades-box">
+                <h2>Upgrades</h2>
+                <div id="upgradesContainer"></div>
+            </div>
+            <div class="achievements-box mobile-achievements">
+    <div class="achievements-title">Achievements</div>
+    <div class="achievements-grid" id="achievementsGridMobile"></div>
+    <div class="achievements-progress" id="achievementsProgressMobile">0 / 0 unlocked</div>
+</div>
+            
+            <div class="website-link">
+                <a href="https://friarfinds.my.canva.site" target="_blank">🔬 Visit Friar Finds - Learn More About Stream Ecology 🐟</a>
+                <div class="reset-button">
+                    <button id="resetButton">Reset Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <h3>Reset Game?</h3>
+            <p>Are you sure you want to reset all progress? This cannot be undone!</p>
+            <div class="modal-buttons">
+                <button class="modal-confirm" id="confirmReset">Yes, Reset</button>
+                <button class="modal-cancel" id="cancelReset">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+let gameState = {
+    droplets: 0,
+    allTimeDroplets: 0,
+    clickPower: 1,
+    totalClicks: 0,
+    visitedWebsite: false,
+    timesLoaded: 0,
+    achievements: {},
+    producers: [
+        { name: 'Raindrop', emoji: '💧', desc: 'A tiny raindrop adds to the flow', rate: 1, count: 0, cost: 15, baseCost: 15 },
+        { name: 'Student', emoji: '👩‍🎓', desc: 'The driving force of the work of Friar Finds', rate: 8, count: 0, cost: 100, baseCost: 100 },
+        { name: 'Stream', emoji: '🏞️', desc: 'The focus of all things Friar Finds', rate: 47, count: 0, cost: 1100, baseCost: 1100 },
+        { name: 'Riffle', emoji: '🌊', desc: 'The shallow, rocky part of a stream', rate: 260, count: 0, cost: 12000, baseCost: 12000 },
+        { name: 'Run', emoji: '🏃', desc: 'The deeper, often straight part of a stream', rate: 1400, count: 0, cost: 130000, baseCost: 130000 },
+        { name: 'Pool', emoji: '🏊🏻', desc: 'The deepest part of a stream', rate: 7800, count: 0, cost: 1400000, baseCost: 1400000 },
+        { name: 'Riparian Zone', emoji: '🌳', desc: 'The vital vegetation along the bank of a stream', rate: 44000, count: 0, cost: 20000000, baseCost: 20000000 },
+        { name: 'Organic Matter', emoji: '🍂', desc: 'The foundation of a stream food chain', rate: 260000, count: 0, cost: 330000000, baseCost: 330000000 },
+        { name: 'Algae', emoji: '🌿', desc: 'The producers of most streams', rate: 1600000, count: 0, cost: 5100000000, baseCost: 5100000000 },
+        { name: 'Microorganisms', emoji: '🔬', desc: 'The organisms that cannot be seen but cannot survive without', rate: 10000000, count: 0, cost: 52000000000, baseCost: 52000000000 },
+        { name: 'Aquatic Insects', emoji: '🪲', desc: 'Larvae, nymphs, and more of a huge variety of organisms', rate: 65000000, count: 0, cost: 1000000000000, baseCost: 1000000000000 },
+        { name: 'Aquatic Snail', emoji: '🐌', desc: 'Found on rocks munching on algae or microorganisms', rate: 430000000, count: 0, cost: 14000000000000, baseCost: 14000000000000 },
+        { name: 'Minnow', emoji: '🐟', desc: 'Shiners, chubs, darters, and more kinds of fish', rate: 2900000000, count: 0, cost: 170000000000000, baseCost: 170000000000000 },
+        { name: 'Crayfish', emoji: '🦞', desc: 'Stream bottom dwellers with mighty pinchers', rate: 21000000000, count: 0, cost: 2100000000000000, baseCost: 2100000000000000 },
+        { name: 'Frog', emoji: '🐸', desc: 'Ribbit ribbit', rate: 150000000000, count: 0, cost: 26000000000000000, baseCost: 26000000000000000 },
+        { name: 'Turtle', emoji: '🐢', desc: 'Lively stream members with protective shells', rate: 451000000000, count: 0, cost: 310000000000000000, baseCost: 310000000000000000 },
+        { name: 'Snake', emoji: '🐍', desc: 'Slithering onto the food chain', rate: 1100000000000, count: 0, cost: 71000000000000000000, baseCost: 71000000000000000000 },
+        { name: 'Predator', emoji: '🦝', desc: 'The top of the top consumers', rate: 1800000000000, count: 0, cost: 1200000000000000000000, baseCost: 1200000000000000000000 },
+        { name: 'Mr. Buckler', emoji: '👨🏻‍🔬', desc: 'The teacher who started Friar Finds', rate: 3700000000000, count: 0, cost: 19000000000000000000000, baseCost: 19000000000000000000000 },
+        { name: 'Sludge Monster', emoji: '👹', desc: 'The legend lives on… beware!', rate: 8800000000000, count: 0, cost: 540000000000000000000000, baseCost: 540000000000000000000000 },
+    ],
+    upgrades: [
+        { name: 'SAGE Power', emoji: '🍽️', desc: 'The power of SAGE compels you to keep clicking! Doubles click power', cost: 100, bought: false, effect: 'click' },
+        { name: 'Water Viewer', emoji: '🔎', desc: 'See deeper in the creek! Raindrops produce 2x droplets', cost: 1000, bought: false, effect: 'Raindrop' },
+        { name: 'Mrs. Hansard', emoji: '👩🏻‍💼', desc: 'Leave a place better than you found it, thus Kona Ice doubles power of students', cost: 11000, bought: false, effect: 'Student' },
+        { name: 'The Runs', emoji: '🚽', desc: 'Visited Taco Bell across the street. Click power produces 5x droplets', cost: 30000, bought: false, effect: 'click5' },
+        { name: 'Trash Pickupper', emoji: '🚮', desc: 'Keeping it clean! Streams produce 2x droplets', cost: 120000, bought: false, effect: 'Stream' },
+        { name: 'Demerit', emoji: '✍️', desc: "Click faster or it's a demerit! 50x click power", cost: 260000, bought: false, effect: 'click50' },
+        { name: 'Short and Sweet', emoji: '🥰', desc: 'Riffles are so peaceful. Riffles produce 2x droplets', cost: 560000, bought: false, effect: 'Riffle' },
+        { name: 'Doughnut', emoji: '🍩', desc: 'You know who you are… All Producers production is boosted 2%', cost: 900000, bought: false, effect: 'all2' },
+        { name: 'What is that?', emoji: '👀', desc: 'Great place to look for minnows and crayfish. Runs produce 2x droplets', cost: 1050000, bought: false, effect: 'Run' },
+        { name: 'Oops!', emoji: '🤦🏻‍♂️', desc: 'Well, that stinks... All Producers production is boosted -4%', cost: 1250000, bought: false, effect: 'all-4' },
+        { name: 'New Species!', emoji: '🐠', desc: 'You found a new stream species! All Producers production is boosted 2%', cost: 1500000, bought: false, effect: 'all2' },
+        { name: 'Coffee Boost', emoji: '☕️', desc: 'Caffeine in the veins works wonders. 100x click power', cost: 3000000, bought: false, effect: 'click100' },
+        { name: 'That is a big fish', emoji: '🐋', desc: 'Big fishies live here. Pools produce 2x droplets', cost: 103000000, bought: false, effect: 'Pool' },
+        { name: 'Planting New Trees', emoji: '🌱', desc: 'Grow the riparian zone! Riparian zones produce 2x droplets', cost: 200000000, bought: false, effect: 'Riparian Zone' },
+        { name: 'Weather', emoji: '☔️', desc: 'Let it rain! Raindrops produce 10x droplets', cost: 290000000, bought: false, effect: 'Raindrop10' },
+        { name: "It's Fall Y'all", emoji: '🍁', desc: 'Leaves drop into the stream. Organic matter produces 2x droplets', cost: 3300000000, bought: false, effect: 'Organic Matter' },
+        { name: 'Photosynthesis', emoji: '🌞', desc: "Algae love the sun! Algae produces 2x droplets", cost: 51000000000, bought: false, effect: 'Algae' },
+        { name: 'Biofilm', emoji: '🦠', desc: 'Fresh layer of bacteria, fungi, and protists on stream surfaces! Microorganisms produce 2x droplets', cost: 670000000000, bought: false, effect: 'Microorganisms' },
+        { name: 'Discipleship', emoji: '📖', desc: 'Time in the Word of God is power. Students produce 5x droplets', cost: 1000000000000, bought: false, effect: 'Student5' },
+        { name: 'An alien?!', emoji: '👽', desc: 'Not actually aliens, but still strange looking! Aquatic Insects produce 2x droplets', cost: 13000000000000, bought: false, effect: 'Aquatic Insects' },
+        { name: 'Trying?', emoji: '🤷🏻‍♂️', desc: 'Are you even trying? 200x click power', cost: 15000000000000, bought: false, effect: 'click200' },
+        { name: 'More Fishies', emoji: '🎣', desc: 'More fishies means more fun! Minnows produce 2x droplets', cost: 999000000000000, bought: false, effect: 'Minnow' },
+        { name: 'Ouch!', emoji: '🩹', desc: 'Crayfish pinched you? Crayfish produce 2x droplets', cost: 22200000000000000, bought: false, effect: 'Crayfish' },
+        { name: 'Maggots', emoji: '🪰', desc: 'Yum, flies… Frogs produce 2x droplets', cost: 1100000000000000000, bought: false, effect: 'Frog' },
+        { name: 'TMNT Power', emoji: '🥷🏼', desc: 'Not all turtles move slowly. Turtles produce 2x droplets', cost: 20000000000000000000, bought: false, effect: 'Turtle' },
+        { name: 'Thumbs of Steel', emoji: '🤙🏼', desc: 'Getting a good workout in? All producers boosted 3%', cost: 56000000000000000000, bought: false, effect: 'all3' },
+        { name: 'Deception', emoji: '🙉', desc: 'Never listen to a talking snake. Snakes produce 2x droplets', cost: 704000000000000000000, bought: false, effect: 'Snake' },
+        { name: 'Top Dawg', emoji: '🐺', desc: 'More predators come to the stream because of the abundance of organisms. Predators produce 2x droplets', cost: 2000000000000000000000000, bought: false, effect: 'Predator' },
+        { name: 'Friar Finds', emoji: '💻', desc: 'The power of data collection! Mr. Buckler produces 2x droplets', cost: 3500000000000000000000000, bought: false, effect: 'Mr. Buckler' },
+        { name: 'Feed the Monster', emoji: '🧌', desc: "All your work has caught the attention of the Sludge Monster… Click faster!; Sludge Monster produced 2x droplets", cost: 5400000000000000000000000, bought: false, effect: 'Sludge Monster' },
+        { name: 'Winning Attitude', emoji: '💪', desc: "That's the spirit! All Producers 5x droplets", cost: 10000000000000000000000000, bought: false, effect: 'all5' },
+        { name: 'Winner!', emoji: '🏆', desc: 'You have wasted enough time on this. Let us declare you have won! Visit the Friar Finds website for more; All Producers 10x production of droplets', cost: 2000000000000000000000000000, bought: false, effect: 'all10' },
+    ]
+};
+
+// Format numbers
+function formatNumber(num) {
+    if (num >= 1e45) return (num / 1e45).toFixed(2) + 'Qadc';
+    if (num >= 1e42) return (num / 1e42).toFixed(2) + 'Tdc';
+    if (num >= 1e39) return (num / 1e39).toFixed(2) + 'Dd';
+    if (num >= 1e36) return (num / 1e36).toFixed(2) + 'Udc';
+    if (num >= 1e33) return (num / 1e33).toFixed(2) + 'Dc';
+    if (num >= 1e30) return (num / 1e30).toFixed(2) + 'No';
+    if (num >= 1e27) return (num / 1e27).toFixed(2) + 'Oc';
+    if (num >= 1e24) return (num / 1e24).toFixed(2) + 'Sp';
+    if (num >= 1e21) return (num / 1e21).toFixed(2) + 'Sx';
+    if (num >= 1e18) return (num / 1e18).toFixed(2) + 'Qn';
+    if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa';
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return Math.floor(num).toLocaleString();
+}
+
+// Define all achievements
+const achievementList = [
+    // Click achievements
+    { id: 'click_10', emoji: '👆', desc: 'Clicked 10 times', check: () => gameState.totalClicks >= 10 },
+    { id: 'click_100', emoji: '🫵', desc: 'Clicked 100 times', check: () => gameState.totalClicks >= 100 },
+    { id: 'click_500', emoji: '👉', desc: 'Clicked 500 times', check: () => gameState.totalClicks >= 500 },
+    { id: 'click_750', emoji: '☝️', desc: 'Clicked 750 times', check: () => gameState.totalClicks >= 750 },
+    { id: 'click_1000', emoji: '🖱️', desc: 'Clicked 1,000 times', check: () => gameState.totalClicks >= 1000 },
+    { id: 'click_3000', emoji: '⚡️', desc: 'Clicked 3,000 times', check: () => gameState.totalClicks >= 3000 },
+    { id: 'click_5000', emoji: '😮', desc: 'Clicked 5,000 times', check: () => gameState.totalClicks >= 5000 },
+    { id: 'click_7500', emoji: '🔥', desc: 'Clicked 7,500 times', check: () => gameState.totalClicks >= 7500 },
+    { id: 'click_10000', emoji: '⭐', desc: 'Clicked 10,000 times', check: () => gameState.totalClicks >= 10000 },
+    { id: 'click_15000', emoji: '💫', desc: 'Clicked 15,000 times', check: () => gameState.totalClicks >= 15000 },
+    { id: 'click_20000', emoji: '✨', desc: 'Clicked 20,000 times', check: () => gameState.totalClicks >= 20000 },
+    { id: 'click_25000', emoji: '🌟', desc: 'Clicked 25,000 times', check: () => gameState.totalClicks >= 25000 },
+
+    // Producer purchase achievements (1 of each)
+    ...gameState.producers.map(p => ({
+        id: `${p.name}_1`,
+        emoji: p.emoji,
+        desc: `Purchased 1 ${p.name}`,
+        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 1
+    })),
+    
+    // Producer purchase achievements (10 of each)
+    ...gameState.producers.map(p => ({
+        id: `${p.name}_10`,
+        emoji: `${p.emoji}`,
+        desc: `Purchased 10 ${p.name}`,
+        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 10
+    })),
+    
+    // Producer purchase achievements (100 of each)
+    ...gameState.producers.map(p => ({
+        id: `${p.name}_100`,
+        emoji: '💯',
+        desc: `Purchased 100 ${p.name}`,
+        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 100
+    })),
+    
+    // Producer purchase achievements (1000 of each)
+    ...gameState.producers.map(p => ({
+        id: `${p.name}_1000`,
+        emoji: '🏆',
+        desc: `Purchased 1,000 ${p.name}`,
+        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 1000
+    })),
+    
+    // Special achievements
+    { id: 'first_visit', emoji: '👋', desc: 'Welcome to Creek Clicker!', check: () => true },
+    { id: 'welcome_back', emoji: '🔄', desc: 'Came back to play again!', check: () => gameState.timesLoaded >= 2 },
+    { id: 'dedicated', emoji: '🫡', desc: 'Loaded the game 10 times', check: () => gameState.timesLoaded >= 10 },
+    { id: 'addicted', emoji: '😍', desc: 'Loaded the game 20 times', check: () => gameState.timesLoaded >= 20 },
+    { id: 'visited_website', emoji: '🌐', desc: 'Visited Friar Finds Website', check: () => gameState.visitedWebsite },
+    { id: 'one_of_everything', emoji: '🎁', desc: 'One of Everything', check: () => gameState.producers.every(p => p.count >= 1) },
+    { id: 'all_upgrades', emoji: '⬆️', desc: 'Bought All Upgrades', check: () => gameState.upgrades.every(u => u.bought) },
+    { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...', check: () => gameState.allTimeDroplets >= 999999999999999999999999999 },
+    { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
+    { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?', check: () => gameState.allTimeDroplets >= 999999999999999999999999999 * 10 },
+];
+
+// Check and unlock achievements
+function checkAchievements() {
+    let newUnlocks = false;
+    achievementList.forEach(achievement => {
+        if (!gameState.achievements[achievement.id] && achievement.check()) {
+            gameState.achievements[achievement.id] = true;
+            newUnlocks = true;
+            showAchievementNotification(achievement);
+        }
+    });
+    if (newUnlocks) {
+        renderAchievements();
+        saveGame();
+    }
+}
+
+// Show achievement notification
+function showAchievementNotification(achievement) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #1d3720;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        z-index: 10000;
+        animation: slideIn 0.5s ease-out;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    `;
+    notification.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 5px;">🎉 Achievement Unlocked!</div>
+        <div>${achievement.emoji} ${achievement.desc}</div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.5s ease-out';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Render achievements
+function renderAchievements() {
+    const containerDesktop = document.getElementById('achievementsGrid');
+    const containerMobile = document.getElementById('achievementsGridMobile');
+    const progressDesktop = document.getElementById('achievementsProgress');
+    const progressMobile = document.getElementById('achievementsProgressMobile');
+    
+    let html = '';
+    let unlockedCount = 0;
+    
+    achievementList.forEach(achievement => {
+        const unlocked = gameState.achievements[achievement.id];
+        if (unlocked) unlockedCount++;
+        
+        html += `
+            <div class="achievement ${unlocked ? 'unlocked' : 'locked'}">
+                <span>${achievement.emoji}</span>
+                <div class="achievement-tooltip">${achievement.desc}</div>
+            </div>
+        `;
+    });
+    
+    const progressText = `${unlockedCount} / ${achievementList.length} unlocked`;
+    
+    // Update both desktop and mobile versions
+    containerDesktop.innerHTML = html;
+    containerMobile.innerHTML = html;
+    progressDesktop.textContent = progressText;
+    progressMobile.textContent = progressText;
+}
+        
+        // Mobile touch support for achievements - works for both containers
+document.addEventListener('click', function(e) {
+    const achievement = e.target.closest('.achievement');
+    if (achievement && window.innerWidth <= 768) {
+        // Remove any existing tooltips
+        document.querySelectorAll('.achievement.show-tooltip').forEach(a => {
+            a.classList.remove('show-tooltip');
+        });
+        
+        // Show this tooltip
+        achievement.classList.add('show-tooltip');
+        
+        // Hide after 2 seconds
+        setTimeout(() => {
+            achievement.classList.remove('show-tooltip');
+        }, 2000);
+    }
+    
+    // Hide tooltip when clicking outside
+    if (!e.target.closest('.achievement') && window.innerWidth <= 768) {
+        document.querySelectorAll('.achievement.show-tooltip').forEach(a => {
+            a.classList.remove('show-tooltip');
+        });
+    }
+});
+
+// Calculate total per second
+function getTotalPerSecond() {
+    return gameState.producers.reduce((sum, p) => sum + (p.rate * p.count), 0);
+}
+
+// Throttle display updates
+let updateScheduled = false;
+
+function scheduleUpdate() {
+    if (!updateScheduled) {
+        updateScheduled = true;
+        requestAnimationFrame(() => {
+            updateDisplay();
+            updateScheduled = false;
+        });
+    }
+}
+
+// Update display
+function updateDisplay() {
+    document.getElementById('dropletCount').textContent = formatNumber(gameState.droplets) + ' droplets';
+    document.getElementById('perSecond').textContent = 'per second: ' + formatNumber(getTotalPerSecond());
+    document.getElementById('allTimeCount').textContent = 'all time: ' + formatNumber(gameState.allTimeDroplets);
+    renderProducers();
+    renderUpgrades();
+}
+
+// Render producers
+let lastProducerRender = '';
+function renderProducers() {
+    const container = document.getElementById('producersContainer');
+    
+    // Generate HTML string
+    let html = '';
+    gameState.producers.forEach((producer, index) => {
+        const canBuy = gameState.droplets >= producer.cost;
+        html += `
+            <div class="item ${canBuy ? 'available' : 'unavailable'}" data-producer="${index}">
+                <span class="item-emoji">${producer.emoji}</span>
+                <div class="item-content">
+                    <div class="item-name">${producer.name} (${producer.count})</div>
+                    <div class="item-desc">${producer.desc}</div>
+                    <div class="item-stats">Cost: ${formatNumber(producer.cost)} | ${formatNumber(producer.rate)}/sec</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Only update if changed
+    if (html !== lastProducerRender) {
+        container.innerHTML = html;
+        lastProducerRender = html;
+    }
+}
+
+// Use event delegation for producers
+document.getElementById('producersContainer').addEventListener('click', function(e) {
+    const item = e.target.closest('.item.available');
+    if (item) {
+        const index = parseInt(item.getAttribute('data-producer'));
+        buyProducer(index);
+    }
+});
+
+// Render upgrades
+let lastUpgradeRender = '';
+function renderUpgrades() {
+    const container = document.getElementById('upgradesContainer');
+    
+    // Separate bought and unbought upgrades
+    const unbought = [];
+    const bought = [];
+    
+    gameState.upgrades.forEach((upgrade, index) => {
+        if (upgrade.bought) {
+            bought.push({ upgrade, index });
+        } else {
+            unbought.push({ upgrade, index });
+        }
+    });
+    
+    // Generate HTML string
+    let html = '';
+    
+    // Render unbought upgrades first
+    unbought.forEach(({ upgrade, index }) => {
+        const canBuy = gameState.droplets >= upgrade.cost;
+        html += `
+            <div class="item ${canBuy ? 'available' : 'unavailable'}" data-upgrade="${index}">
+                <span class="item-emoji">${upgrade.emoji}</span>
+                <div class="item-content">
+                    <div class="item-name">${upgrade.name}</div>
+                    <div class="item-desc">${upgrade.desc}</div>
+                    <div class="item-stats">Cost: ${formatNumber(upgrade.cost)}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Render bought upgrades at the bottom
+    bought.forEach(({ upgrade, index }) => {
+        html += `
+            <div class="item bought">
+                <span class="item-emoji">${upgrade.emoji}</span>
+                <div class="item-content">
+                    <div class="item-name">${upgrade.name}</div>
+                    <div class="item-desc">${upgrade.desc}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Only update if changed
+    if (html !== lastUpgradeRender) {
+        container.innerHTML = html;
+        lastUpgradeRender = html;
+    }
+}
+
+// Use event delegation for upgrades
+document.getElementById('upgradesContainer').addEventListener('click', function(e) {
+    const item = e.target.closest('.item.available');
+    if (item && item.hasAttribute('data-upgrade')) {
+        const index = parseInt(item.getAttribute('data-upgrade'));
+        buyUpgrade(index);
+    }
+});
+
+// Buy producer
+function buyProducer(index) {
+    const producer = gameState.producers[index];
+    if (gameState.droplets >= producer.cost) {
+        gameState.droplets -= producer.cost;
+        producer.count++;
+        producer.cost = Math.floor(producer.baseCost * Math.pow(1.15, producer.count));
+        
+        // 1% boost to click power for each producer purchase
+        gameState.clickPower *= 1.01;
+        
+        scheduleUpdate();
+        saveGame();
+        checkAchievements();
+    }
+}
+
+// Buy upgrade
+function buyUpgrade(index) {
+    const upgrade = gameState.upgrades[index];
+    if (!upgrade.bought && gameState.droplets >= upgrade.cost) {
+        gameState.droplets -= upgrade.cost;
+        upgrade.bought = true;
+
+        if (upgrade.effect === 'click') {
+            gameState.clickPower *= 2;
+        } else if (upgrade.effect === 'click5') {
+            gameState.clickPower *= 5;
+        } else if (upgrade.effect === 'click50') {
+            gameState.clickPower *= 50;
+        } else if (upgrade.effect === 'click100') {
+            gameState.clickPower *= 100;
+        } else if (upgrade.effect === 'click200') {
+            gameState.clickPower *= 200;
+        } else if (upgrade.effect === 'all2') {
+            gameState.producers.forEach(p => p.rate *= 1.02);
+        } else if (upgrade.effect === 'all-4') {
+            gameState.producers.forEach(p => p.rate *= 0.96);
+        } else if (upgrade.effect === 'all3') {
+            gameState.producers.forEach(p => p.rate *= 1.03);
+        } else if (upgrade.effect === 'all5') {
+            gameState.producers.forEach(p => p.rate *= 5);
+        } else if (upgrade.effect === 'all10') {
+            gameState.producers.forEach(p => p.rate *= 10);
+        } else if (upgrade.effect === 'Student5') {
+            const producer = gameState.producers.find(p => p.name === 'Student');
+            if (producer) producer.rate *= 5;
+        } else if (upgrade.effect === 'Raindrop10') {
+            const producer = gameState.producers.find(p => p.name === 'Raindrop');
+            if (producer) producer.rate *= 10;
+        } else {
+            const producer = gameState.producers.find(p => p.name === upgrade.effect);
+            if (producer) producer.rate *= 2;
+        }
+
+        scheduleUpdate();
+        saveGame();
+        checkAchievements();
+    }
+}
+
+// Click handler with better mobile support
+const dropletButton = document.getElementById('dropletButton');
+
+function handleClick(e) {
+    gameState.droplets += gameState.clickPower;
+    gameState.allTimeDroplets += gameState.clickPower;
+    gameState.totalClicks++;
+    
+    // Quick update of just the counter for instant feedback
+    document.getElementById('dropletCount').textContent = formatNumber(gameState.droplets) + ' droplets';
+    
+    // Use fixed positioning for floating numbers
+    const x = e.clientX || window.innerWidth / 2;
+    const y = e.clientY || window.innerHeight / 3;
+    
+    const floater = document.createElement('div');
+    floater.className = 'floating-number';
+    floater.textContent = '+' + formatNumber(gameState.clickPower);
+    floater.style.left = x + 'px';
+    floater.style.top = y + 'px';
+    document.body.appendChild(floater);
+    
+    setTimeout(() => floater.remove(), 1000);
+    
+    // Schedule full update for next frame
+    scheduleUpdate();
+    checkAchievements();
+}
+
+// Use only click event for better compatibility
+dropletButton.onclick = handleClick;
+
+// Reset button handler
+document.getElementById('resetButton').addEventListener('click', function() {
+    document.getElementById('resetModal').classList.add('active');
+});
+
+// Confirm reset
+document.getElementById('confirmReset').addEventListener('click', async function() {
+    try {
+        if (isArtifact) {
+            await window.storage.delete('creekClickerSave', false);
+        } else {
+            localStorage.removeItem('creekClickerSave');
+        }
+        window.location.reload();
+    } catch (error) {
+        console.error('Failed to reset game:', error);
+        alert('Failed to reset game: ' + error.message);
+    }
+});
+
+// Cancel reset
+document.getElementById('cancelReset').addEventListener('click', function() {
+    document.getElementById('resetModal').classList.remove('active');
+});
+
+// Production loop
+setInterval(() => {
+    const production = getTotalPerSecond() / 10;
+    if (production > 0) {
+        gameState.droplets += production;
+        gameState.allTimeDroplets += production;
+        scheduleUpdate();
+    }
+}, 100);
+
+// Detect storage type
+const isArtifact = typeof window.storage !== 'undefined';
+
+// Save game to persistent storage with debouncing
+let saveTimeout = null;
+let isSaving = false;
+async function saveGame() {
+// Clear any pending save
+if (saveTimeout) {
+clearTimeout(saveTimeout);
+}
+    // Debounce: wait 2 seconds of inactivity before saving
+saveTimeout = setTimeout(async () => {
+    if (isSaving) return; // Skip if already saving
+    
+    isSaving = true;
+    try {
+        if (isArtifact) {
+            await window.storage.set('creekClickerSave', JSON.stringify(gameState), false);
+        } else {
+            localStorage.setItem('creekClickerSave', JSON.stringify(gameState));
+        }
+    } catch (error) {
+        console.error('Failed to save game:', error);
+    } finally {
+        isSaving = false;
+    }
+}, 2000);
+}
+// Auto-save every 10 seconds (less frequent to avoid conflicts)
+setInterval(() => {
+if (!isSaving) {
+saveGame();
+}
+}, 10000);
+// Load game from persistent storage
+async function loadGame() {
+try {
+let savedData = null;
+if (isArtifact) {
+    const result = await window.storage.get('creekClickerSave', false);
+savedData = result ? result.value : null;
+} else {
+savedData = localStorage.getItem('creekClickerSave');
+}
+    if (savedData) {
+        const savedState = JSON.parse(savedData);
+        gameState = savedState;
+    }
+} catch (error) {
+    console.error('Failed to load game (starting fresh):', error);
+}
+    gameState.timesLoaded = (gameState.timesLoaded || 0) + 1;
+    
+updateDisplay();
+renderAchievements();
+checkAchievements();
+    }
+// Track website visits
+document.querySelector('.website-link a').addEventListener('click', function() {
+gameState.visitedWebsite = true;
+saveGame();
+checkAchievements();
+});
+// Initialize
+loadGame();
+    </script>
+</body>
+</html>
