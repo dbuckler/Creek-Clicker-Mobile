@@ -406,6 +406,96 @@
         .modal-cancel:hover {
             background-color: #5a6268;
         }
+        .secret-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+}
+
+.secret-modal.active {
+    display: flex;
+}
+
+.secret-modal-content {
+    background-color: #1d3720;
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 500px;
+    box-shadow: 0 0 30px rgba(164, 150, 89, 0.5);
+}
+
+.secret-modal-content h3 {
+    color: #a49659;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.secret-modal-content p {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.secret-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    border: 2px solid #a49659;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+    background-color: #2d4a2f;
+    color: white;
+}
+
+.secret-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.secret-buttons button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.secret-submit {
+    background-color: #a49659;
+    color: #1d3720;
+}
+
+.secret-submit:hover {
+    background-color: #b5a76a;
+}
+
+.secret-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.secret-cancel:hover {
+    background-color: #5a6268;
+}
+
+.secret-error {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+}
         
         @media (max-width: 768px) {
             h1 {
@@ -533,6 +623,19 @@
             </div>
         </div>
     </div>
+    
+    <div id="secretModal" class="secret-modal">
+    <div class="secret-modal-content">
+        <h3>❓ Secret Discovery ❓</h3>
+        <p>You've stumbled upon something mysterious...<br>Enter the password to unlock the secret:</p>
+        <input type="text" id="secretInput" class="secret-input" placeholder="Enter password..." maxlength="10">
+        <div class="secret-error" id="secretError">Incorrect password. Try again!</div>
+        <div class="secret-buttons">
+            <button class="secret-submit" id="secretSubmit">Submit</button>
+            <button class="secret-cancel" id="secretCancel">Cancel</button>
+        </div>
+    </div>
+</div>
 
     <script>
         // Game State
@@ -543,6 +646,8 @@ let gameState = {
     totalClicks: 0,
     visitedWebsite: false,
     timesLoaded: 0,
+    secretAchievementClicks: 0,
+    secretUnlocked: false,
     achievements: {},
     producers: [
         { name: 'Raindrop', emoji: '💧', desc: 'A tiny raindrop adds to the flow', rate: 1, count: 0, cost: 15, baseCost: 15 },
@@ -690,6 +795,14 @@ const achievementList = [
     { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...', check: () => gameState.allTimeDroplets >= 999999999999999999999999999 },
     { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
     { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?', check: () => gameState.allTimeDroplets >= 999999999999999999999999999 * 10 },
+    { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement Unlocked!', check: () => gameState.secretUnlocked },
+    { id: 'achievement_master', emoji: '👑', desc: 'Unlocked All Achievements!', check: () => {
+    // Count how many achievements are unlocked (excluding this one)
+    const unlockedCount = Object.keys(gameState.achievements).filter(id => id !== 'achievement_master' && gameState.achievements[id]).length;
+    // Total achievements minus this one
+    const totalAchievements = achievementList.length - 1;
+    return unlockedCount >= totalAchievements;
+}},
 ];
 
 // Check and unlock achievements
@@ -790,6 +903,107 @@ document.addEventListener('click', function(e) {
         document.querySelectorAll('.achievement.show-tooltip').forEach(a => {
             a.classList.remove('show-tooltip');
         });
+    }
+});
+        // Secret Easter Egg Achievement
+let lastAchievementClickTime = 0;
+let achievementClickCount = 0;
+
+document.addEventListener('click', function(e) {
+    const achievement = e.target.closest('.achievement');
+    
+    if (achievement && !gameState.secretUnlocked) {
+        const now = Date.now();
+        
+        // Reset counter if more than 1 second between clicks
+        if (now - lastAchievementClickTime > 1000) {
+            achievementClickCount = 0;
+        }
+        
+        achievementClickCount++;
+        lastAchievementClickTime = now;
+        
+        // If clicked 3 times quickly, show secret modal
+        if (achievementClickCount >= 3) {
+            achievementClickCount = 0;
+            document.getElementById('secretModal').classList.add('active');
+            document.getElementById('secretInput').value = '';
+            document.getElementById('secretError').style.display = 'none';
+            document.getElementById('secretInput').focus();
+        }
+    }
+});
+
+// Secret modal submit
+document.getElementById('secretSubmit').addEventListener('click', function() {
+    const password = document.getElementById('secretInput').value.trim();
+    
+    if (password === '67') {
+        // Correct password!
+        gameState.secretUnlocked = true;
+        
+        // Boost all producers by 6.7%
+        gameState.producers.forEach(p => p.rate *= 1.067);
+        
+        // Close modal
+        document.getElementById('secretModal').classList.remove('active');
+        
+        // Check achievements to unlock the secret one
+        checkAchievements();
+        
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1d3720;
+            color: #a49659;
+            padding: 30px 40px;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 10001;
+            box-shadow: 0 0 40px rgba(164, 150, 89, 0.8);
+            text-align: center;
+        `;
+        successMsg.innerHTML = `
+            ❓ SECRET UNLOCKED! ❓<br>
+            <span style="font-size: 16px; color: white; margin-top: 10px; display: block;">
+            All producers boosted by 6.7%!
+            </span>
+        `;
+        document.body.appendChild(successMsg);
+        
+        setTimeout(() => successMsg.remove(), 3000);
+        
+        saveGame();
+        updateDisplay();
+    } else {
+        // Wrong password
+        document.getElementById('secretError').style.display = 'block';
+        document.getElementById('secretInput').value = '';
+        document.getElementById('secretInput').focus();
+    }
+});
+
+// Secret modal cancel
+document.getElementById('secretCancel').addEventListener('click', function() {
+    document.getElementById('secretModal').classList.remove('active');
+});
+
+// Allow Enter key to submit password
+document.getElementById('secretInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('secretSubmit').click();
+    }
+});
+
+// Close secret modal when clicking outside
+document.getElementById('secretModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.remove('active');
     }
 });
 
