@@ -669,6 +669,15 @@ const achievementList = [
         desc: `Purchased 1,000 ${p.name}`,
         check: () => gameState.producers.find(pr => pr.name === p.name).count >= 1000
     })),
+
+// All-time droplet achievements
+{ id: 'droplets_10k', emoji: '❗', desc: 'Earned 10,000 All Time Droplets', check: () => gameState.allTimeDroplets >= 10000 },
+{ id: 'droplets_1m', emoji: '‼️', desc: 'Earned 1,000,000 All Time Droplets', check: () => gameState.allTimeDroplets >= 1000000 },
+{ id: 'droplets_1t', emoji: '📢', desc: 'Earned 1T All Time Droplets', check: () => gameState.allTimeDroplets >= 1e12 },
+{ id: 'droplets_1qn', emoji: '🚨', desc: 'Earned 1Qn All Time Droplets', check: () => gameState.allTimeDroplets >= 1e18 },
+{ id: 'droplets_1sp', emoji: '☣️', desc: 'Earned 1Sp All Time Droplets', check: () => gameState.allTimeDroplets >= 1e24 },
+{ id: 'droplets_1no', emoji: '⚠️', desc: 'Earned 1No All Time Droplets', check: () => gameState.allTimeDroplets >= 1e30 },
+{ id: 'droplets_1dc', emoji: '☢️', desc: 'Earned 1Dc All Time Droplets', check: () => gameState.allTimeDroplets >= 1e33 },
     
     // Special achievements
     { id: 'first_visit', emoji: '👋', desc: 'Welcome to Creek Clicker!', check: () => true },
