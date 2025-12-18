@@ -81,9 +81,8 @@
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
             gap: 8px;
             max-height: 200px;
-            overflow-x: auto;
-            overflow-y: visible;
-            padding: 5px;
+            overflow-y: auto;
+            overflow-x: visible; /* ADD THIS */
         }
         
         .achievement {
@@ -122,18 +121,20 @@
         }
         
         .achievement-tooltip {
-            position: fixed;
+            position: absolute;
             background-color: #1d3720;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 12px;
             white-space: nowrap;
-            z-index: 10000;
+            z-index: 1000;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
-            transform: translate(-50%, -100%);
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
             margin-bottom: 5px;
         }
         
@@ -147,10 +148,8 @@
             border-top-color: #1d3720;
         }
         
-        .achievement:hover .achievement-tooltip,
-.achievement.show-tooltip .achievement-tooltip {
-    opacity: 1;
-}
+        .achievement:hover .achievement-tooltip {
+            opacity: 10;
         }
         
         .achievements-progress {
@@ -881,40 +880,7 @@ function renderAchievements() {
     progressMobile.textContent = progressText;
 }
         
-// Function to position tooltip dynamically
-function positionTooltip(achievement) {
-    const tooltip = achievement.querySelector('.achievement-tooltip');
-    if (!tooltip) return;
-    
-    const rect = achievement.getBoundingClientRect();
-    
-    // Center horizontally on the achievement
-    let left = rect.left + (rect.width / 2);
-    
-    // Position above the achievement
-    let top = rect.top - 5;
-    
-    // If tooltip would go above viewport, show below instead
-    if (top < 50) {
-        top = rect.bottom + 5;
-        tooltip.style.transform = 'translate(-50%, 0)';
-    } else {
-        tooltip.style.transform = 'translate(-50%, -100%)';
-    }
-    
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-}
-
-// Position tooltip on hover (desktop)
-document.addEventListener('mouseover', function(e) {
-    const achievement = e.target.closest('.achievement');
-    if (achievement) {
-        positionTooltip(achievement);
-    }
-});
-        
-       // Mobile touch support for achievements - works for both containers
+        // Mobile touch support for achievements - works for both containers
 document.addEventListener('click', function(e) {
     const achievement = e.target.closest('.achievement');
     if (achievement && window.innerWidth <= 768) {
@@ -925,9 +891,6 @@ document.addEventListener('click', function(e) {
         
         // Show this tooltip
         achievement.classList.add('show-tooltip');
-        
-        // Position tooltip
-        positionTooltip(achievement);  // ADD THIS LINE
         
         // Hide after 2 seconds
         setTimeout(() => {
@@ -942,7 +905,6 @@ document.addEventListener('click', function(e) {
         });
     }
 });
-        
         // Secret Easter Egg Achievement
 let lastAchievementClickTime = 0;
 let achievementClickCount = 0;
