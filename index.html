@@ -52,6 +52,7 @@
             border-radius: 10px;
             margin-top: 20px;
             overflow: visible;
+            padding-top: 50px;
         }
         
         .mobile-achievements {
@@ -81,10 +82,9 @@
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
             gap: 8px;
             max-height: 200px;
-            overflow-y: auto;
-            overflow-x: visible;
-            padding: 50px 10px 10px 10px;
-            margin: 0 -10px;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 5px;
         }
         
         .achievement {
@@ -123,20 +123,18 @@
         }
         
         .achievement-tooltip {
-            position: absolute;
+            position: fixed;
             background-color: #1d3720;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 12px;
             white-space: nowrap;
-            z-index: 1000;
+            z-index: 10000;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -100%);
             margin-bottom: 5px;
         }
         
