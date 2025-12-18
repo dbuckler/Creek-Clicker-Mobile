@@ -635,6 +635,31 @@
             <button class="secret-cancel" id="secretCancel">Cancel</button>
         </div>
     </div>
+        <div id="devConsoleModal" class="secret-modal">
+    <div class="secret-modal-content">
+        <h3>🔧 Developer Console 🔧</h3>
+        <p>Enter admin password to access dev tools:</p>
+        <input type="password" id="devPassword" class="secret-input" placeholder="Enter password..." maxlength="20">
+        <div class="secret-error" id="devPasswordError">Incorrect password!</div>
+        <div style="margin: 20px 0; display: none;" id="devToolsPanel">
+            <div style="color: #a49659; font-weight: bold; margin-bottom: 15px;">Add Droplets:</div>
+            <input type="text" id="devDropletsInput" class="secret-input" placeholder="Enter amount (e.g., 1000000)" style="margin-bottom: 10px;">
+            <button class="secret-submit" id="devAddDroplets" style="width: 100%; margin-bottom: 15px;">Add Droplets</button>
+            <div style="color: white; font-size: 14px; margin-top: 10px;">
+                Quick actions:<br>
+                <button class="secret-submit" onclick="quickAddDroplets(1000000)" style="margin: 5px; padding: 8px 12px;">+1M</button>
+                <button class="secret-submit" onclick="quickAddDroplets(1000000000)" style="margin: 5px; padding: 8px 12px;">+1B</button>
+                <button class="secret-submit" onclick="quickAddDroplets(1000000000000)" style="margin: 5px; padding: 8px 12px;">+1T</button>
+                <button class="secret-submit" onclick="quickAddDroplets(1e18)" style="margin: 5px; padding: 8px 12px;">+1Qn</button>
+            </div>
+        </div>
+        <div class="secret-buttons">
+            <button class="secret-submit" id="devLogin" style="display: block;">Login</button>
+            <button class="secret-submit" id="devClose" style="display: none;">Close</button>
+            <button class="secret-cancel" id="devCancel">Cancel</button>
+        </div>
+    </div>
+</div>
 </div>
 
     <script>
@@ -804,6 +829,27 @@ const achievementList = [
     return unlockedCount >= totalAchievements;
 }},
 ];
+        // Developer Console Easter Egg
+let devClickCount = 0;
+let lastDevClickTime = 0;
+
+document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'H1') {
+        const now = Date.now();
+        
+        if (now - lastDevClickTime > 1500) {
+            devClickCount = 0;
+        }
+        
+        devClickCount++;
+        lastDevClickTime = now;
+        
+        if (devClickCount >= 5) {
+            devClickCount = 0;
+            showDevConsole();
+        }
+    }
+});
 
 // Check and unlock achievements
 function checkAchievements() {
@@ -1002,6 +1048,118 @@ document.getElementById('secretInput').addEventListener('keypress', function(e) 
 
 // Close secret modal when clicking outside
 document.getElementById('secretModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.remove('active');
+    }
+});
+        // Developer Console Functions
+function showDevConsole() {
+    document.getElementById('devConsoleModal').classList.add('active');
+    document.getElementById('devPassword').value = '';
+    document.getElementById('devPasswordError').style.display = 'none';
+    document.getElementById('devToolsPanel').style.display = 'none';
+    document.getElementById('devLogin').style.display = 'block';
+    document.getElementById('devClose').style.display = 'none';
+    document.getElementById('devPassword').focus();
+}
+
+document.getElementById('devLogin').addEventListener('click', function() {
+    const password = document.getElementById('devPassword').value;
+    
+    // Change this password to whatever you want
+    if (password === 'Bucky123') {
+        document.getElementById('devPasswordError').style.display = 'none';
+        document.getElementById('devToolsPanel').style.display = 'block';
+        document.getElementById('devLogin').style.display = 'none';
+        document.getElementById('devClose').style.display = 'block';
+        document.getElementById('devPassword').style.display = 'none';
+    } else {
+        document.getElementById('devPasswordError').style.display = 'block';
+        document.getElementById('devPassword').value = '';
+    }
+});
+
+document.getElementById('devAddDroplets').addEventListener('click', function() {
+    const amount = parseFloat(document.getElementById('devDropletsInput').value);
+    if (!isNaN(amount) && amount > 0) {
+        gameState.droplets += amount;
+        gameState.allTimeDroplets += amount;
+        updateDisplay();
+        saveGame();
+        checkAchievements();
+        
+        // Show success message
+        const msg = document.createElement('div');
+        msg.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1d3720;
+            color: #a49659;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 10002;
+            box-shadow: 0 0 20px rgba(164, 150, 89, 0.5);
+        `;
+        msg.textContent = `Added ${formatNumber(amount)} droplets!`;
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 2000);
+        
+        document.getElementById('devDropletsInput').value = '';
+    }
+});
+
+function quickAddDroplets(amount) {
+    gameState.droplets += amount;
+    gameState.allTimeDroplets += amount;
+    updateDisplay();
+    saveGame();
+    checkAchievements();
+    
+    const msg = document.createElement('div');
+    msg.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #1d3720;
+        color: #a49659;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 10002;
+        box-shadow: 0 0 20px rgba(164, 150, 89, 0.5);
+    `;
+    msg.textContent = `Added ${formatNumber(amount)} droplets!`;
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 2000);
+}
+
+document.getElementById('devClose').addEventListener('click', function() {
+    document.getElementById('devConsoleModal').classList.remove('active');
+});
+
+document.getElementById('devCancel').addEventListener('click', function() {
+    document.getElementById('devConsoleModal').classList.remove('active');
+});
+
+document.getElementById('devPassword').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('devLogin').click();
+    }
+});
+
+document.getElementById('devDropletsInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('devAddDroplets').click();
+    }
+});
+
+document.getElementById('devConsoleModal').addEventListener('click', function(e) {
     if (e.target === this) {
         this.classList.remove('active');
     }
