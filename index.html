@@ -1405,21 +1405,18 @@ function buyUpgrade(index) {
             gameState.clickPower *= 200;
         } else if (upgrade.effect === 'all2') {
             gameState.producers.forEach(p => p.rate *= 1.02);
-        } else if (upgrade.effect === 'all-4') {
-            gameState.producers.forEach(p => p.rate *= 0.96);
-        } else if (upgrade.effect === 'all3') {
-            gameState.producers.forEach(p => p.rate *= 1.03);
         } else if (upgrade.effect === 'all5') {
             gameState.producers.forEach(p => p.rate *= 5);
         } else if (upgrade.effect === 'all10') {
-            gameState.producers.forEach(p => p.rate *= 10);
-        } else if (upgrade.effect === 'Student5') {
-            const producer = gameState.producers.find(p => p.name === 'Student');
-            if (producer) producer.rate *= 5;
-        } else if (upgrade.effect === 'Raindrop10') {
+            gameState.producers.forEach(p => p.rate *= 1.10);
+        } else if (upgrade.effect === 'Raindrop100') {
             const producer = gameState.producers.find(p => p.name === 'Raindrop');
-            if (producer) producer.rate *= 10;
+            if (producer) producer.rate *= 100;
+        } else if (upgrade.effect === 'Student50') {
+            const producer = gameState.producers.find(p => p.name === 'Student');
+            if (producer) producer.rate *= 50;
         } else {
+            // Handle all individual producer 2x multipliers (Stream, Riffle, Run, Pool, etc.)
             const producer = gameState.producers.find(p => p.name === upgrade.effect);
             if (producer) producer.rate *= 2;
         }
