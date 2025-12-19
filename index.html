@@ -770,6 +770,7 @@
         <div class="achievements-toggle">+</div>
     </div>
 </div>
+</div>
         
         <div class="right-section">
             <div class="producers-box">
@@ -1161,69 +1162,6 @@ document.getElementById('closeAchievements').addEventListener('click', closeAchi
 document.getElementById('achievementsModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeAchievementsModal();
-    }
-});
-    
-    const progressText = `${unlockedCount} / ${achievementList.length} unlocked`;
-    
-    // Update both desktop and mobile versions
-    containerDesktop.innerHTML = html;
-    containerMobile.innerHTML = html;
-    progressDesktop.textContent = progressText;
-    progressMobile.textContent = progressText;
-}
-        
-        // Mobile touch support for achievements - works for both containers
-document.addEventListener('click', function(e) {
-    const achievement = e.target.closest('.achievement');
-    if (achievement && window.innerWidth <= 768) {
-        // Remove any existing tooltips
-        document.querySelectorAll('.achievement.show-tooltip').forEach(a => {
-            a.classList.remove('show-tooltip');
-        });
-        
-        // Show this tooltip
-        achievement.classList.add('show-tooltip');
-        
-        // Hide after 2 seconds
-        setTimeout(() => {
-            achievement.classList.remove('show-tooltip');
-        }, 2000);
-    }
-    
-    // Hide tooltip when clicking outside
-    if (!e.target.closest('.achievement') && window.innerWidth <= 768) {
-        document.querySelectorAll('.achievement.show-tooltip').forEach(a => {
-            a.classList.remove('show-tooltip');
-        });
-    }
-});
-        // Secret Easter Egg Achievement
-let lastAchievementClickTime = 0;
-let achievementClickCount = 0;
-
-document.addEventListener('click', function(e) {
-    const achievement = e.target.closest('.achievement');
-    
-    if (achievement && !gameState.secretUnlocked) {
-        const now = Date.now();
-        
-        // Reset counter if more than 1 second between clicks
-        if (now - lastAchievementClickTime > 1000) {
-            achievementClickCount = 0;
-        }
-        
-        achievementClickCount++;
-        lastAchievementClickTime = now;
-        
-        // If clicked 3 times quickly, show secret modal
-        if (achievementClickCount >= 3) {
-            achievementClickCount = 0;
-            document.getElementById('secretModal').classList.add('active');
-            document.getElementById('secretInput').value = '';
-            document.getElementById('secretError').style.display = 'none';
-            document.getElementById('secretInput').focus();
-        }
     }
 });
 
