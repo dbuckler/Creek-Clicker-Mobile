@@ -1261,7 +1261,8 @@ function renderProducers() {
     // Generate HTML string
     let html = '';
     gameState.producers.forEach((producer, index) => {
-        const canBuy = gameState.droplets >= producer.cost;
+        const bulkCost = getBulkCost(index, purchaseAmount);
+        const canBuy = gameState.droplets >= bulkCost;
         html += `
             <div class="item ${canBuy ? 'available' : 'unavailable'}" data-producer="${index}">
                 <span class="item-emoji">${producer.emoji}</span>
