@@ -928,6 +928,7 @@ let gameState = {
         { name: 'TMNT Power', emoji: '🥷🏼', desc: 'Not all turtles move slowly. Turtles produce 2x droplets', cost: 20000000000000000000, bought: false, effect: 'Turtle' },
         { name: 'Thumbs of Steel', emoji: '🤙🏼', desc: 'Getting a good workout in? All producers boosted 10%', cost: 56000000000000000000, bought: false, effect: 'all10' },
         { name: 'Deception', emoji: '🙉', desc: 'Never listen to a talking snake. Snakes produce 2x droplets', cost: 704000000000000000000, bought: false, effect: 'Snake' },
+        { name: 'Aura', emoji: '🆒', desc: 'Look at you go! All Producers production is boosted 2%', cost: 200000000000000000000000, bought: false, effect: 'all2' },
         { name: 'Top Dawg', emoji: '🐺', desc: 'More predators come to the stream because of the abundance of organisms. Predators produce 2x droplets', cost: 2000000000000000000000000, bought: false, effect: 'Predator' },
         { name: 'Friar Finds', emoji: '💻', desc: 'The power of data collection! Mr. Buckler produces 2x droplets', cost: 3500000000000000000000000, bought: false, effect: 'Mr. Buckler' },
         { name: 'Feed the Monster', emoji: '🧌', desc: "All your work has caught the attention of the Sludge Monster… Click faster!; Sludge Monster produced 2x droplets", cost: 5400000000000000000000000, bought: false, effect: 'Sludge Monster' },
@@ -973,6 +974,7 @@ const achievementList = [
     { id: 'click_15000', emoji: '💫', desc: 'Clicked 15,000 times', check: () => gameState.totalClicks >= 15000 },
     { id: 'click_20000', emoji: '✨', desc: 'Clicked 20,000 times', check: () => gameState.totalClicks >= 20000 },
     { id: 'click_25000', emoji: '🌟', desc: 'Clicked 25,000 times', check: () => gameState.totalClicks >= 25000 },
+    { id: 'click_50000', emoji: '🎖️', desc: 'Clicked 50,000 times', check: () => gameState.totalClicks >= 50000 },
 
     // Producer purchase achievements (1 of each)
     ...gameState.producers.map(p => ({
@@ -1015,6 +1017,7 @@ const achievementList = [
 { id: 'droplets_1sx', emoji: '⚠️', desc: 'Earned 1 Sx All Time Droplets', check: () => gameState.allTimeDroplets >= 1e21 },
 { id: 'droplets_1sp', emoji: '☣️', desc: 'Earned 1 Sp All Time Droplets', check: () => gameState.allTimeDroplets >= 1e24 },
 { id: 'droplets_1oc', emoji: '☢️', desc: 'Earned 1 Oc All Time Droplets', check: () => gameState.allTimeDroplets >= 1e27 },
+{ id: 'droplets_1oc', emoji: '💥', desc: 'Earned 1 No All Time Droplets', check: () => gameState.allTimeDroplets >= 1e30 },
     
     // Special achievements
     { id: 'first_visit', emoji: '👋', desc: 'Welcome to Creek Clicker!', check: () => true },
@@ -1026,7 +1029,7 @@ const achievementList = [
     { id: 'all_upgrades', emoji: '⬆️', desc: 'Bought All Upgrades', check: () => gameState.upgrades.every(u => u.bought) },
     { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...: Total Droplets more than 100Sp', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
     { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner: Unlock Winner! upgrade', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
-    { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?: Total Droplets more than 999 Oc', check: () => gameState.allTimeDroplets >= 999000000000000000000000000000 },
+    { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?: Total Droplets more than 999 No', check: () => gameState.allTimeDroplets >= 999000000000000000000000000000000 },
     { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement!: Can you guess it? See website', check: () => gameState.secretUnlocked },
     { id: 'achievement_master', emoji: '👑', desc: 'Unlocked All Achievements!', check: () => {
     // Count how many achievements are unlocked (excluding this one)
