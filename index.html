@@ -151,6 +151,11 @@
             opacity: 1;
             visibility: visible;
         }
+
+        .achievement.unlocked:hover .achievement-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
         
         .achievements-progress {
             color: #1d3720;
@@ -997,21 +1002,59 @@ document.addEventListener('click', function(e) {
     }
 });
 
-        // Position tooltips on hover
+       // Position tooltips on hover - handles both locked and unlocked
 document.addEventListener('mouseenter', function(e) {
     const achievement = e.target.closest('.achievement');
-    if (achievement && !achievement.classList.contains('locked')) {
+    if (achievement) {
         const tooltip = achievement.querySelector('.achievement-tooltip');
         if (tooltip) {
             const rect = achievement.getBoundingClientRect();
+            const tooltipWidth = tooltip.offsetWidth || 150; // Get actual width or estimate
+            const tooltipHeight = tooltip.offsetHeight || 40; // Get actual height or estimate
             
-            // Position tooltip centered above the achievement
-            const tooltipHeight = 40; // Approximate height
-            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
-            tooltip.style.top = (rect.top - tooltipHeight) + 'px';
+            // Calculate horizontal position
+            let left = rect.left + rect.width / 2;
+            
+            // Check if tooltip would go off right edge
+            if (left + tooltipWidth / 2 > window.innerWidth) {
+                left = window.innerWidth - tooltipWidth / 2 - 10;
+            }
+            
+            // Check if tooltip would go off left edge
+            if (left - tooltipWidth / 2 < 0) {
+                left = tooltipWidth / 2 + 10;
+            }
+            
+            // Position tooltip
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = (rect.top - tooltipHeight - 10) + 'px';
             tooltip.style.transform = 'translateX(-50%)';
         }
     }
+}, true);
+
+// Update tooltip position on scroll within achievements grid
+document.querySelectorAll('.achievements-grid').forEach(grid => {
+    grid.addEventListener('scroll', function() {
+        // Hide all tooltips when scrolling
+        document.querySelectorAll('.achievement-tooltip').forEach(tooltip => {
+            tooltip.style.opacity = '0';
+            tooltip.style.visibility = 'hidden';
+        });
+    });
+});
+
+// Reposition tooltip on scroll
+document.addEventListener('scroll', function() {
+    document.querySelectorAll('.achievement:hover').forEach(achievement => {
+        const tooltip = achievement.querySelector('.achievement-tooltip');
+        if (tooltip) {
+            const rect = achievement.getBoundingClientRect();
+            const tooltipHeight = tooltip.offsetHeight || 40;
+            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - tooltipHeight - 10) + 'px';
+        }
+    });
 }, true);
         
         // Secret Easter Egg Achievement
