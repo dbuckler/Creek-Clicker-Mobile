@@ -134,7 +134,7 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
-            visibility: hidden;
+            display: none;
         }
         
         .achievement-tooltip::after {
@@ -149,7 +149,7 @@
         
         .achievement:hover .achievement-tooltip {
             opacity: 1;
-            visibility: visible;
+            display: block;
         }
 
         .achievement.unlocked:hover .achievement-tooltip {
@@ -1002,60 +1002,38 @@ document.addEventListener('click', function(e) {
     }
 });
 
-       // Position tooltips on hover - handles both locked and unlocked
-document.addEventListener('mouseenter', function(e) {
+       // Position tooltips on hover
+document.addEventListener('mouseover', function(e) {
     const achievement = e.target.closest('.achievement');
     if (achievement) {
         const tooltip = achievement.querySelector('.achievement-tooltip');
         if (tooltip) {
-            const rect = achievement.getBoundingClientRect();
-            const tooltipWidth = tooltip.offsetWidth || 150; // Get actual width or estimate
-            const tooltipHeight = tooltip.offsetHeight || 40; // Get actual height or estimate
+            // Make tooltip visible first to get its dimensions
+            tooltip.style.display = 'block';
             
-            // Calculate horizontal position
+            const rect = achievement.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            
+            // Calculate horizontal position (centered on achievement)
             let left = rect.left + rect.width / 2;
             
-            // Check if tooltip would go off right edge
-            if (left + tooltipWidth / 2 > window.innerWidth) {
-                left = window.innerWidth - tooltipWidth / 2 - 10;
+            // Adjust if tooltip goes off right edge
+            if (left + tooltipRect.width / 2 > window.innerWidth - 10) {
+                left = window.innerWidth - tooltipRect.width / 2 - 10;
             }
             
-            // Check if tooltip would go off left edge
-            if (left - tooltipWidth / 2 < 0) {
-                left = tooltipWidth / 2 + 10;
+            // Adjust if tooltip goes off left edge
+            if (left - tooltipRect.width / 2 < 10) {
+                left = tooltipRect.width / 2 + 10;
             }
             
-            // Position tooltip
+            // Position above the achievement
             tooltip.style.left = left + 'px';
-            tooltip.style.top = (rect.top - tooltipHeight - 10) + 'px';
+            tooltip.style.top = (rect.top - tooltipRect.height - 8) + 'px';
             tooltip.style.transform = 'translateX(-50%)';
         }
     }
-}, true);
-
-// Update tooltip position on scroll within achievements grid
-document.querySelectorAll('.achievements-grid').forEach(grid => {
-    grid.addEventListener('scroll', function() {
-        // Hide all tooltips when scrolling
-        document.querySelectorAll('.achievement-tooltip').forEach(tooltip => {
-            tooltip.style.opacity = '0';
-            tooltip.style.visibility = 'hidden';
-        });
-    });
 });
-
-// Reposition tooltip on scroll
-document.addEventListener('scroll', function() {
-    document.querySelectorAll('.achievement:hover').forEach(achievement => {
-        const tooltip = achievement.querySelector('.achievement-tooltip');
-        if (tooltip) {
-            const rect = achievement.getBoundingClientRect();
-            const tooltipHeight = tooltip.offsetHeight || 40;
-            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
-            tooltip.style.top = (rect.top - tooltipHeight - 10) + 'px';
-        }
-    });
-}, true);
         
         // Secret Easter Egg Achievement
 let lastAchievementClickTime = 0;
