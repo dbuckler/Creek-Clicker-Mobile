@@ -1000,12 +1000,12 @@ const achievementList = [
         check: () => gameState.producers.find(pr => pr.name === p.name).count >= 100
     })),
     
-    // Producer purchase achievements (500 of each)
+    // Producer purchase achievements (250 of each)
     ...gameState.producers.map(p => ({
-        id: `${p.name}_500`,
+        id: `${p.name}_250`,
         emoji: '💸',
-        desc: `Purchased 500 ${p.name}`,
-        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 5000
+        desc: `Purchased 250 ${p.name}`,
+        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 250
     })),
 
 // All-time droplet achievements
