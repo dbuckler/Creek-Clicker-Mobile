@@ -1027,7 +1027,7 @@ const achievementList = [
     { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
     { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
     { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 * 10 },
-    { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement Unlocked!', check: () => gameState.secretUnlocked },
+    { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement!', check: () => gameState.secretUnlocked },
     { id: 'achievement_master', emoji: '👑', desc: 'Unlocked All Achievements!', check: () => {
     // Count how many achievements are unlocked (excluding this one)
     const unlockedCount = Object.keys(gameState.achievements).filter(id => id !== 'achievement_master' && gameState.achievements[id]).length;
@@ -1125,6 +1125,36 @@ function openAchievementsModal() {
 function closeAchievementsModal() {
     document.getElementById('achievementsModal').classList.remove('active');
 }
+        
+        // Secret Easter Egg Achievement - Click achievement title 3 times
+let lastAchievementTitleClickTime = 0;
+let achievementTitleClickCount = 0;
+
+document.addEventListener('click', function(e) {
+    // Check if clicking on the achievement modal title
+    const achievementTitle = e.target.closest('.achievements-modal-title');
+    
+    if (achievementTitle && !gameState.secretUnlocked) {
+        const now = Date.now();
+        
+        // Reset counter if more than 1 second between clicks
+        if (now - lastAchievementTitleClickTime > 1000) {
+            achievementTitleClickCount = 0;
+        }
+        
+        achievementTitleClickCount++;
+        lastAchievementTitleClickTime = now;
+        
+        // If clicked 3 times quickly, show secret modal
+        if (achievementTitleClickCount >= 3) {
+            achievementTitleClickCount = 0;
+            document.getElementById('secretModal').classList.add('active');
+            document.getElementById('secretInput').value = '';
+            document.getElementById('secretError').style.display = 'none';
+            document.getElementById('secretInput').focus();
+        }
+    }
+});
 
 // Render full achievements list in modal
 function renderAchievementsList() {
