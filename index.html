@@ -52,6 +52,7 @@
             border-radius: 10px;
             margin-top: 20px;
             overflow: visible;
+            position: relative;
         }
         
         .mobile-achievements {
@@ -80,9 +81,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
             gap: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            overflow-x: visible; /* ADD THIS */
+            overflow: visible
         }
         
         .achievement {
@@ -91,6 +90,7 @@
             position: relative;
             text-align: center;
             transition: transform 0.2s;
+            z-index: 1;
         }
         
         .achievement.locked {
@@ -104,6 +104,7 @@
         
         .achievement:hover {
             transform: scale(1.2);
+            z-index: 100;
         }
         
         @keyframes unlock {
@@ -121,21 +122,19 @@
         }
         
         .achievement-tooltip {
-            position: absolute;
+            position: fixed;
             background-color: #1d3720;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 12px;
             white-space: nowrap;
-            z-index: 1000;
+            z-index: 1001;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-bottom: 5px;
+            transform: translate(-50%. -100%);
+            margin-top: -5px;
         }
         
         .achievement-tooltip::after {
@@ -149,7 +148,7 @@
         }
         
         .achievement:hover .achievement-tooltip {
-            opacity: 10;
+            opacity: 1;
         }
         
         .achievements-progress {
@@ -996,6 +995,20 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+
+        // Dynamic tooltip positioning for achievements
+document.addEventListener('mouseover', function(e) {
+    const achievement = e.target.closest('.achievement');
+    if (achievement) {
+        const tooltip = achievement.querySelector('.achievement-tooltip');
+        if (tooltip) {
+            const rect = achievement.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+            tooltip.style.top = rect.top + 'px';
+        }
+    }
+});
+        
         // Secret Easter Egg Achievement
 let lastAchievementClickTime = 0;
 let achievementClickCount = 0;
