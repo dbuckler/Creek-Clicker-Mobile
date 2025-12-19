@@ -1018,15 +1018,15 @@ const achievementList = [
     // Special achievements
     { id: 'first_visit', emoji: '👋', desc: 'Welcome to Creek Clicker!', check: () => true },
     { id: 'welcome_back', emoji: '🔄', desc: 'Came back to play again!', check: () => gameState.timesLoaded >= 2 },
-    { id: 'dedicated', emoji: '🫡', desc: 'Loaded the game 10 times', check: () => gameState.timesLoaded >= 10 },
-    { id: 'addicted', emoji: '😍', desc: 'Loaded the game 20 times', check: () => gameState.timesLoaded >= 20 },
+    { id: 'dedicated', emoji: '🫡', desc: 'Loaded the game 7 times', check: () => gameState.timesLoaded >= 7 },
+    { id: 'addicted', emoji: '😍', desc: 'Loaded the game 14 times', check: () => gameState.timesLoaded >= 14 },
     { id: 'visited_website', emoji: '🌐', desc: 'Visited Friar Finds Website', check: () => gameState.visitedWebsite },
     { id: 'one_of_everything', emoji: '🎁', desc: 'One of Everything', check: () => gameState.producers.every(p => p.count >= 1) },
     { id: 'all_upgrades', emoji: '⬆️', desc: 'Bought All Upgrades', check: () => gameState.upgrades.every(u => u.bought) },
-    { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
-    { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
-    { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 * 10 },
-    { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement!', check: () => gameState.secretUnlocked },
+    { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...: Total Droplets more than 100Sp', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
+    { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner: Unlock Winner! upgrade', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
+    { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?: Total Droplets more than 2 No', check: () => gameState.allTimeDroplets >= 2000000000000000000000000000000 },
+    { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement!: Can you guess it? See website', check: () => gameState.secretUnlocked },
     { id: 'achievement_master', emoji: '👑', desc: 'Unlocked All Achievements!', check: () => {
     // Count how many achievements are unlocked (excluding this one)
     const unlockedCount = Object.keys(gameState.achievements).filter(id => id !== 'achievement_master' && gameState.achievements[id]).length;
