@@ -241,6 +241,41 @@
             margin-top: 0;
             margin-bottom: 15px;
         }
+
+        .purchase-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.purchase-controls span {
+    color: #1d3720;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.purchase-btn {
+    background-color: #ffffff;
+    color: #1d3720;
+    border: 2px solid #1d3720;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.purchase-btn:hover {
+    background-color: #1d3720;
+    color: #ffffff;
+}
+
+.purchase-btn.active {
+    background-color: #1d3720;
+    color: #ffffff;
+}
         
         .item {
             padding: 10px;
@@ -591,6 +626,12 @@
         <div class="right-section">
             <div class="producers-box">
                 <h2>Producers</h2>
+                <div class="purchase-controls">
+                    <span>Buy:</span>
+                    <button class="purchase-btn active" data-amount="1">1x</button>
+                    <button class="purchase-btn" data-amount="10">10x</button>
+                    <button class="purchase-btn" data-amount="100">100x</button>
+                </div>
                 <div id="producersContainer"></div>
             </div>
             
@@ -732,6 +773,8 @@ let gameState = {
         { name: 'Winner!', emoji: '🏆', desc: 'You have wasted enough time on this. Let us declare you have won! Visit the Friar Finds website for more; All Producers 10x production of droplets', cost: 100000000000000000000000000, bought: false, effect: 'all10' },
     ]
 };
+        // Purchase amount multiplier
+let purchaseAmount = 1;
 
 // Format numbers
 function formatNumber(num) {
@@ -1171,6 +1214,22 @@ document.getElementById('devConsoleModal').addEventListener('click', function(e)
 function getTotalPerSecond() {
     return gameState.producers.reduce((sum, p) => sum + (p.rate * p.count), 0);
 }
+        
+    // Calculate bulk purchase cost
+function getBulkCost(producerIndex, amount) {
+    const producer = gameState.producers[producerIndex];
+    let totalCost = 0;
+    let tempCount = producer.count;
+    let tempCost = producer.cost;
+    
+    for (let i = 0; i < amount; i++) {
+        totalCost += tempCost;
+        tempCount++;
+        tempCost = Math.floor(producer.baseCost * Math.pow(1.15, tempCount));
+    }
+    
+    return totalCost;
+}
 
 // Throttle display updates
 let updateScheduled = false;
@@ -1209,7 +1268,7 @@ function renderProducers() {
                 <div class="item-content">
                     <div class="item-name">${producer.name} (${producer.count})</div>
                     <div class="item-desc">${producer.desc}</div>
-                    <div class="item-stats">Cost: ${formatNumber(producer.cost)} | ${formatNumber(producer.rate)}/sec</div>
+                    <div class="item-stats">Cost: ${formatNumber(getBulkCost(index, purchaseAmount))} ${purchaseAmount > 1 ? '(x' + purchaseAmount + ')' : ''} | ${formatNumber(producer.rate)}/sec</div>
                 </div>
             </div>
         `;
@@ -1298,13 +1357,27 @@ document.getElementById('upgradesContainer').addEventListener('click', function(
 // Buy producer
 function buyProducer(index) {
     const producer = gameState.producers[index];
-    if (gameState.droplets >= producer.cost) {
-        gameState.droplets -= producer.cost;
-        producer.count++;
-        producer.cost = Math.floor(producer.baseCost * Math.pow(1.15, producer.count));
+    
+    // Calculate total cost for multiple purchases
+    let totalCost = 0;
+    let tempCount = producer.count;
+    let tempCost = producer.cost;
+    
+    for (let i = 0; i < purchaseAmount; i++) {
+        totalCost += tempCost;
+        tempCount++;
+        tempCost = Math.floor(producer.baseCost * Math.pow(1.15, tempCount));
+    }
+    
+    if (gameState.droplets >= totalCost) {
+        gameState.droplets -= totalCost;
         
-        // 1% boost to click power for each producer purchase
-        gameState.clickPower *= 1.01;
+        // Apply purchases
+        for (let i = 0; i < purchaseAmount; i++) {
+            producer.count++;
+            producer.cost = Math.floor(producer.baseCost * Math.pow(1.15, producer.count));
+            gameState.clickPower *= 1.01;
+        }
         
         scheduleUpdate();
         saveGame();
@@ -1489,6 +1562,15 @@ checkAchievements();
 });
 // Initialize
 loadGame();
+        // Purchase amount button handlers
+document.querySelectorAll('.purchase-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.purchase-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        purchaseAmount = parseInt(this.getAttribute('data-amount'));
+        renderProducers(); // Re-render to update costs
+    });
+});
     </script>
 </body>
 </html>
