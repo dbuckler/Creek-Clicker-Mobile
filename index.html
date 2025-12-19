@@ -81,7 +81,9 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
             gap: 8px;
-            overflow: visible
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         
         .achievement {
@@ -122,7 +124,7 @@
         }
         
         .achievement-tooltip {
-            position: fixed;
+            position: absolute;
             background-color: #1d3720;
             color: white;
             padding: 8px 12px;
@@ -133,8 +135,10 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
-            transform: translate(-50%. -100%);
-            margin-top: -5px;
+            bottom: 100%;
+            left: 50%
+            transform: translate(-50%);
+            margin-top: 5px;
         }
         
         .achievement-tooltip::after {
@@ -993,19 +997,6 @@ document.addEventListener('click', function(e) {
         document.querySelectorAll('.achievement.show-tooltip').forEach(a => {
             a.classList.remove('show-tooltip');
         });
-    }
-});
-
-        // Dynamic tooltip positioning for achievements
-document.addEventListener('mouseover', function(e) {
-    const achievement = e.target.closest('.achievement');
-    if (achievement) {
-        const tooltip = achievement.querySelector('.achievement-tooltip');
-        if (tooltip) {
-            const rect = achievement.getBoundingClientRect();
-            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
-            tooltip.style.top = rect.top + 'px';
-        }
     }
 });
         
