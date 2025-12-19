@@ -992,20 +992,20 @@ const achievementList = [
         check: () => gameState.producers.find(pr => pr.name === p.name).count >= 10
     })),
     
+    // Producer purchase achievements (50 of each)
+    ...gameState.producers.map(p => ({
+        id: `${p.name}_50`,
+        emoji: '💸',
+        desc: `Purchased 50 ${p.name}`,
+        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 50
+    })),
+    
     // Producer purchase achievements (100 of each)
     ...gameState.producers.map(p => ({
         id: `${p.name}_100`,
         emoji: '💯',
         desc: `Purchased 100 ${p.name}`,
         check: () => gameState.producers.find(pr => pr.name === p.name).count >= 100
-    })),
-    
-    // Producer purchase achievements (250 of each)
-    ...gameState.producers.map(p => ({
-        id: `${p.name}_250`,
-        emoji: '💸',
-        desc: `Purchased 250 ${p.name}`,
-        check: () => gameState.producers.find(pr => pr.name === p.name).count >= 250
     })),
 
 // All-time droplet achievements
