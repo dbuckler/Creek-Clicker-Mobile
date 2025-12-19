@@ -47,12 +47,157 @@
         }
         
         .achievements-box {
-            background-color: #a49659;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            overflow: visible;
-        }
+    background-color: #a49659;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.achievements-box:hover {
+    background-color: #b5a76a;
+}
+
+.achievements-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.achievements-toggle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1d3720;
+    transition: transform 0.3s ease;
+}
+
+.achievements-toggle.expanded {
+    transform: rotate(45deg);
+}
+
+.achievements-content {
+    display: none;
+    margin-top: 15px;
+}
+
+.achievements-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.achievements-modal.active {
+    display: flex;
+}
+
+.achievements-modal-content {
+    background-color: #a49659;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 1000px;
+}
+
+.achievements-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #1d3720;
+}
+
+.achievements-modal-title {
+    color: #1d3720;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.achievements-close {
+    font-size: 32px;
+    color: #1d3720;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.achievements-close:hover {
+    transform: scale(1.2);
+}
+
+.achievements-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.achievement-item:hover {
+    transform: translateX(5px);
+}
+
+.achievement-item.locked {
+    opacity: 0.4;
+    filter: grayscale(100%);
+}
+
+.achievement-item-emoji {
+    font-size: 36px;
+    flex-shrink: 0;
+}
+
+.achievement-item-text {
+    flex: 1;
+}
+
+.achievement-item-desc {
+    color: #1d3720;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.achievement-item-status {
+    color: #666;
+    font-size: 11px;
+}
+
+@media (max-width: 768px) {
+    .achievements-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .achievements-modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .achievements-modal-title {
+        font-size: 22px;
+    }
+}
         
         .mobile-achievements {
     display: none;
@@ -616,10 +761,13 @@
         <div class="all-time-count" id="allTimeCount">all time: 0</div>
     </div>
     
-    <div class="achievements-box desktop-achievements">
-        <div class="achievements-title">Achievements</div>
-        <div class="achievements-grid" id="achievementsGrid"></div>
-        <div class="achievements-progress" id="achievementsProgress">0 / 0 unlocked</div>
+    <div class="achievements-box desktop-achievements" id="achievementsBoxDesktop">
+    <div class="achievements-header">
+        <div>
+            <div class="achievements-title">Achievements</div>
+            <div class="achievements-progress" id="achievementsProgress">0 / 0 unlocked</div>
+        </div>
+        <div class="achievements-toggle">+</div>
     </div>
 </div>
         
@@ -639,10 +787,24 @@
                 <h2>Upgrades</h2>
                 <div id="upgradesContainer"></div>
             </div>
-            <div class="achievements-box mobile-achievements">
-    <div class="achievements-title">Achievements</div>
-    <div class="achievements-grid" id="achievementsGridMobile"></div>
-    <div class="achievements-progress" id="achievementsProgressMobile">0 / 0 unlocked</div>
+            <div class="achievements-box mobile-achievements" id="achievementsBoxMobile">
+    <div class="achievements-header">
+        <div>
+            <div class="achievements-title">Achievements</div>
+            <div class="achievements-progress" id="achievementsProgressMobile">0 / 0 unlocked</div>
+        </div>
+        <div class="achievements-toggle">+</div>
+    </div>
+</div>
+            <div id="achievementsModal" class="achievements-modal">
+    <div class="achievements-modal-content">
+        <div class="achievements-modal-header">
+            <div class="achievements-modal-title">🏆 Achievements</div>
+            <div class="achievements-close" id="closeAchievements">×</div>
+        </div>
+        <div class="achievements-progress" id="achievementsProgressModal" style="text-align: center; margin-bottom: 20px; color: #1d3720; font-weight: bold; font-size: 16px;">0 / 0 unlocked</div>
+        <div class="achievements-list" id="achievementsList"></div>
+    </div>
 </div>
             
             <div class="website-link">
@@ -940,12 +1102,33 @@ function showAchievementNotification(achievement) {
     }, 3000);
 }
 
-// Render achievements
+// Render achievements 
 function renderAchievements() {
-    const containerDesktop = document.getElementById('achievementsGrid');
-    const containerMobile = document.getElementById('achievementsGridMobile');
     const progressDesktop = document.getElementById('achievementsProgress');
     const progressMobile = document.getElementById('achievementsProgressMobile');
+    
+    let unlockedCount = Object.keys(gameState.achievements).filter(id => gameState.achievements[id]).length;
+    const progressText = `${unlockedCount} / ${achievementList.length} unlocked`;
+    
+    progressDesktop.textContent = progressText;
+    progressMobile.textContent = progressText;
+}
+
+    // Open achievements modal
+function openAchievementsModal() {
+    document.getElementById('achievementsModal').classList.add('active');
+    renderAchievementsList();
+}
+
+// Close achievements modal
+function closeAchievementsModal() {
+    document.getElementById('achievementsModal').classList.remove('active');
+}
+
+// Render full achievements list in modal
+function renderAchievementsList() {
+    const container = document.getElementById('achievementsList');
+    const progressModal = document.getElementById('achievementsProgressModal');
     
     let html = '';
     let unlockedCount = 0;
@@ -955,12 +1138,31 @@ function renderAchievements() {
         if (unlocked) unlockedCount++;
         
         html += `
-            <div class="achievement ${unlocked ? 'unlocked' : 'locked'}">
-                <span>${achievement.emoji}</span>
-                <div class="achievement-tooltip">${achievement.desc}</div>
+            <div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">
+                <div class="achievement-item-emoji">${achievement.emoji}</div>
+                <div class="achievement-item-text">
+                    <div class="achievement-item-desc">${achievement.desc}</div>
+                    <div class="achievement-item-status">${unlocked ? '✓ Unlocked' : '🔒 Locked'}</div>
+                </div>
             </div>
         `;
     });
+    
+    container.innerHTML = html;
+    progressModal.textContent = `${unlockedCount} / ${achievementList.length} unlocked`;
+}
+
+// Event listeners for achievements box clicks
+document.getElementById('achievementsBoxDesktop').addEventListener('click', openAchievementsModal);
+document.getElementById('achievementsBoxMobile').addEventListener('click', openAchievementsModal);
+document.getElementById('closeAchievements').addEventListener('click', closeAchievementsModal);
+
+// Close modal when clicking outside
+document.getElementById('achievementsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAchievementsModal();
+    }
+});
     
     const progressText = `${unlockedCount} / ${achievementList.length} unlocked`;
     
