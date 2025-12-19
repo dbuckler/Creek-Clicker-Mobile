@@ -1027,7 +1027,7 @@ const achievementList = [
     { id: 'visited_website', emoji: '🌐', desc: 'Visited Friar Finds Website', check: () => gameState.visitedWebsite },
     { id: 'one_of_everything', emoji: '🎁', desc: 'One of Everything', check: () => gameState.producers.every(p => p.count >= 1) },
     { id: 'all_upgrades', emoji: '⬆️', desc: 'Bought All Upgrades', check: () => gameState.upgrades.every(u => u.bought) },
-    { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...: Total Droplets more than 100Sp', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
+    { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...: Total Droplets equal 100Sp', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
     { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner: Unlock Winner! upgrade', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
     { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?: Total Droplets more than 999 No', check: () => gameState.allTimeDroplets >= 999000000000000000000000000000000 },
     { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement!: Can you guess it? See website', check: () => gameState.secretUnlocked },
