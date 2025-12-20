@@ -1385,7 +1385,14 @@ document.getElementById('devConsoleModal').addEventListener('click', function(e)
 
 // Calculate total per second
 function getTotalPerSecond() {
-    return gameState.producers.reduce((sum, p) => sum + (p.rate * p.count), 0);
+    const baseProduction = gameState.producers.reduce((sum, p) => sum + (p.rate * p.count), 0);
+    return baseProduction * getAchievementBonus();
+}
+        
+        // Calculate achievement bonus multiplier
+function getAchievementBonus() {
+    const unlockedCount = Object.keys(gameState.achievements).filter(id => gameState.achievements[id]).length;
+    return Math.pow(1.005, unlockedCount); // 0.5% per achievement (multiplicative)
 }
         
     // Calculate bulk purchase cost
@@ -1604,8 +1611,9 @@ function buyUpgrade(index) {
 const dropletButton = document.getElementById('dropletButton');
 
 function handleClick(e) {
-    gameState.droplets += gameState.clickPower;
-    gameState.allTimeDroplets += gameState.clickPower;
+    const boostedClickPower = gameState.clickPower * getAchievementBonus();
+    gameState.droplets += boostedClickPower;
+    gameState.allTimeDroplets += boostedClickPower;
     gameState.totalClicks++;
     
     // Quick update of just the counter for instant feedback
@@ -1617,7 +1625,7 @@ function handleClick(e) {
     
     const floater = document.createElement('div');
     floater.className = 'floating-number';
-    floater.textContent = '+' + formatNumber(gameState.clickPower);
+    floater.textContent = '+' + formatNumber(boostedClickPower);
     floater.style.left = x + 'px';
     floater.style.top = y + 'px';
     document.body.appendChild(floater);
