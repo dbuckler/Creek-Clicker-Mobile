@@ -746,6 +746,120 @@
                 font-size: 20px;
             }
         }
+        .ascend-box {
+    background-color: #1d3720;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.ascend-button {
+    background-color: #a49659;
+    color: #1d3720;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+.ascend-button:hover {
+    background-color: #b5a76a;
+}
+
+.ascend-button:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.ascend-requirement {
+    color: #a49659;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.ascend-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.ascend-modal.active {
+    display: flex;
+}
+
+.ascend-modal-content {
+    background-color: #1d3720;
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 0 40px rgba(164, 150, 89, 0.6);
+}
+
+.ascend-modal-content h3 {
+    color: #a49659;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.ascend-modal-content p {
+    color: white;
+    font-size: 15px;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.ascend-modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.ascend-confirm {
+    background-color: #a49659;
+    color: #1d3720;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.ascend-confirm:hover {
+    background-color: #b5a76a;
+}
+
+.ascend-cancel-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.ascend-cancel-btn:hover {
+    background-color: #5a6268;
+}
     </style>
 </head>
 <body>
@@ -768,6 +882,9 @@
         </div>
         <div class="achievements-toggle">+</div>
     </div>
+        <div class="ascend-box" id="ascendBox">
+    <button class="ascend-button" id="ascendButton" disabled>🕊️ Ascend</button>
+    <div class="ascend-requirement" id="ascendRequirement">Requires: 150 Sludge Monsters</div>
 </div>
 </div>
         
@@ -837,7 +954,19 @@
             <button class="secret-submit" id="secretSubmit">Submit</button>
             <button class="secret-cancel" id="secretCancel">Cancel</button>
         </div>
-    </div>   
+    </div>
+</div>
+        <div id="ascendModal" class="ascend-modal">
+    <div class="ascend-modal-content">
+        <h3>🕊️ Ascend</h3>
+        <p><strong>Do you REALLY want to become a Creek Freak?</strong></p>
+        <p>You will keep all your achievements but your progress will start over from scratch with a <strong>10% boost to all producers</strong>.</p>
+        <p style="color: #a49659; font-size: 13px;">Requirement: 150 Sludge Monsters ✓</p>
+        <div class="ascend-modal-buttons">
+            <button class="ascend-confirm" id="ascendConfirm">Yes, Ascend!</button>
+            <button class="ascend-cancel-btn" id="ascendCancelBtn">Not Yet</button>
+        </div>
+    </div>
 </div>
        
         <div id="devConsoleModal" class="secret-modal">
@@ -875,6 +1004,7 @@ let gameState = {
     totalClicks: 0,
     visitedWebsite: false,
     timesLoaded: 0,
+    ascendMultiplier: 1,
     secretAchievementClicks: 0,
     secretUnlocked: false,
     achievements: {},
@@ -1387,7 +1517,7 @@ document.getElementById('devConsoleModal').addEventListener('click', function(e)
 // Calculate total per second
 function getTotalPerSecond() {
     const baseProduction = gameState.producers.reduce((sum, p) => sum + (p.rate * p.count), 0);
-    return baseProduction * getAchievementBonus();
+return baseProduction * getAchievementBonus() * (gameState.ascendMultiplier || 1);
 }
         
         // Calculate achievement bonus multiplier
@@ -1752,6 +1882,101 @@ document.querySelectorAll('.purchase-btn').forEach(btn => {
         renderProducers(); // Re-render to update costs
     });
 });
+        // Ascend (Rebirth) System
+function checkAscendEligibility() {
+    const sludgeMonster = gameState.producers.find(p => p.name === 'Sludge Monster');
+    const eligible = sludgeMonster && sludgeMonster.count >= 150;
+    const btn = document.getElementById('ascendButton');
+    const req = document.getElementById('ascendRequirement');
+    if (btn) {
+        btn.disabled = !eligible;
+        req.textContent = eligible
+            ? '✅ Requirement met! 150 Sludge Monsters'
+            : `Requires: 150 Sludge Monsters (you have ${sludgeMonster ? sludgeMonster.count : 0})`;
+    }
+}
+
+document.getElementById('ascendButton').addEventListener('click', function () {
+    if (!this.disabled) {
+        document.getElementById('ascendModal').classList.add('active');
+    }
+});
+
+document.getElementById('ascendConfirm').addEventListener('click', async function () {
+    // Save achievements before reset
+    const savedAchievements = Object.assign({}, gameState.achievements);
+    const ascendCount = (gameState.ascendCount || 0) + 1;
+
+    // Reset gameState to defaults but keep achievements
+    gameState.droplets = 0;
+    gameState.allTimeDroplets = 0;
+    gameState.clickPower = 1;
+    gameState.totalClicks = 0;
+    gameState.visitedWebsite = false;
+    gameState.secretAchievementClicks = 0;
+    // Keep secretUnlocked so the boost doesn't stack on re-entry
+    gameState.timesLoaded = 0;
+    gameState.achievements = savedAchievements;
+    gameState.ascendCount = ascendCount;
+
+   const baseRates = [1, 8, 47, 260, 1400, 7800, 44000, 260000, 1600000, 10000000,
+    65000000, 430000000, 2900000000, 21000000000, 150000000000,
+    451000000000, 1100000000000, 1800000000000, 3700000000000, 8800000000000];
+
+gameState.ascendMultiplier = (gameState.ascendMultiplier || 1) * 1.10;
+
+gameState.producers.forEach((p, i) => {
+    p.count = 0;
+    p.cost = p.baseCost;
+    p.rate = baseRates[i];
+});
+
+    // Reset all upgrades
+    gameState.upgrades.forEach(u => {
+        u.bought = false;
+    });
+
+    document.getElementById('ascendModal').classList.remove('active');
+
+    // Save and reload
+    try {
+        if (isArtifact) {
+            await window.storage.set('creekClickerSave', JSON.stringify(gameState), false);
+        } else {
+            localStorage.setItem('creekClickerSave', JSON.stringify(gameState));
+        }
+    } catch (error) {
+        console.error('Failed to save after ascension:', error);
+    }
+
+    // Show ascension message then reload
+    const msg = document.createElement('div');
+    msg.style.cssText = `
+        position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #1d3720; color: #a49659;
+        padding: 30px 40px; border-radius: 15px;
+        font-size: 22px; font-weight: bold;
+        z-index: 10002; text-align: center;
+        box-shadow: 0 0 50px rgba(164, 150, 89, 0.9);
+    `;
+    msg.innerHTML = `🕊️ You have Ascended!<br><span style="font-size:15px;color:white;">Welcome back, Creek Freak.<br>All producers boosted 10%!</span>`;
+    document.body.appendChild(msg);
+
+    setTimeout(() => window.location.reload(), 2500);
+});
+
+document.getElementById('ascendCancelBtn').addEventListener('click', function () {
+    document.getElementById('ascendModal').classList.remove('active');
+});
+
+document.getElementById('ascendModal').addEventListener('click', function (e) {
+    if (e.target === this) this.classList.remove('active');
+});
+
+// Hook into the existing production loop to check eligibility over time
+setInterval(checkAscendEligibility, 2000);
+checkAscendEligibility();
     </script>
 </body>
 </html>
