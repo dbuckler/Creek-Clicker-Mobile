@@ -1876,6 +1876,48 @@ gameState.visitedWebsite = true;
 saveGame();
 checkAchievements();
 });
+// Offline / background production
+document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+        // Tab is leaving — record the time
+        gameState.lastSeen = Date.now();
+        saveGame();
+    } else {
+        // Tab is returning — calculate time away
+        if (gameState.lastSeen) {
+            const secondsAway = (Date.now() - gameState.lastSeen) / 1000;
+            const earned = getTotalPerSecond() * secondsAway;
+            if (earned > 0) {
+                gameState.droplets += earned;
+                gameState.allTimeDroplets += earned;
+                updateDisplay();
+                checkAchievements();
+
+                // Show a notification of what was earned
+                const msg = document.createElement('div');
+                msg.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #1d3720;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    font-size: 16px;
+                    z-index: 10000;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                `;
+                msg.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 5px;">💧 Welcome Back!</div>
+                    <div>Away for ${Math.floor(secondsAway)}s — earned ${formatNumber(earned)} droplets!</div>
+                `;
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), 4000);
+            }
+            gameState.lastSeen = null;
+        }
+    }
+});
 // Initialize
 loadGame();
         // Purchase amount button handlers
