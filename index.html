@@ -889,6 +889,7 @@
     <div class="ascend-box" id="ascendBox">
     <button class="ascend-button" id="ascendButton" disabled>🕊️ Ascend</button>
     <div class="ascend-requirement" id="ascendRequirement">Requires: 150 Sludge Monsters</div>
+    <div class="ascend-requirement" id="ascendCount">Times Ascended: 0</div>
     </div>
         </div>
         
@@ -1897,6 +1898,7 @@ function checkAscendEligibility() {
         req.textContent = eligible
             ? '✅ Requirement met! 150 Sludge Monsters'
             : `Requires: 150 Sludge Monsters (you have ${sludgeMonster ? sludgeMonster.count : 0})`;
+        document.getElementById('ascendCount').textContent = `Times Ascended: ${gameState.ascendCount || 0}`;
     }
 }
 
