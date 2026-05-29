@@ -2532,9 +2532,9 @@ function showTickerMessage() {
     // Slide in
     ticker.classList.add('visible');
 
-    // Auto-dismiss after 7 seconds
+    // Auto-dismiss after 10 seconds
     clearTimeout(tickerDismissTimeout);
-    tickerDismissTimeout = setTimeout(dismissTicker, 7000);
+    tickerDismissTimeout = setTimeout(dismissTicker, 10000);
 }
 
 let tickerDismissTimeout = null;
