@@ -588,6 +588,59 @@
         .modal-cancel:hover {
             background-color: #5a6268;
         }
+        .news-ticker {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #1d3720;
+    color: #a49659;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateY(100%);
+    transition: transform 0.4s ease-in-out;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.4);
+}
+
+.news-ticker.visible {
+    transform: translateY(0);
+}
+
+.news-ticker-label {
+    background-color: #a49659;
+    color: #1d3720;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.news-ticker-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.news-ticker-close {
+    cursor: pointer;
+    font-size: 18px;
+    color: #a49659;
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.news-ticker-close:hover {
+    opacity: 1;
+}
         .secret-modal {
     display: none;
     position: fixed;
@@ -2424,6 +2477,84 @@ document.getElementById('trivaModal').addEventListener('click', function (e) {
 
 // Fire every 5 minutes
 setInterval(showTriviaQuestion, 5 * 60 * 1000);
+    
+// ─── News Ticker System ──────────────────────────────────────────────────────
+
+const tickerMessages = [
+    "Breaking News! Local drought ended by remarkable clicking — scientists baffled!",
+    "Your stream is thriving! Fish population up 400% since you started clicking.",
+    "JUST IN: Friar Branch named 'Most Improved Waterway' for the third year running.",
+    "Weather Update: 100% chance of droplets in your area. Keep clicking!",
+    "Scientists confirm: one click generates enough energy to power a minnow for a week.",
+    "Local crayfish union endorses your clicking efforts. Pinches of approval all around!",
+    "ALERT: Sludge Monster sighting reported downstream. Clicking faster may help.",
+    "Stream ecology report: biodiversity indices off the charts thanks to your dedication!",
+    "Did you know? The water you're generating could fill an Olympic pool. Keep going!",
+    "Riparian zone flourishing! Trees along Friar Branch have never looked better.",
+    "Mr. Buckler spotted doing a victory lap around the creek. You're the reason why.",
+    "BREAKING: Algae levels reach historic high — in a good way! Photosynthesis is booming.",
+    "Your clicking has single-handedly reversed local turbidity readings. Remarkable!",
+    "Aquatic insect populations exploding with joy — nymphs emerging ahead of schedule!",
+    "Creek Freak alert! Experts say your dedication to droplets is truly unprecedented.",
+    "Flash flood of positivity detected in your area. Source traced back to this tab.",
+    "Pool depth increasing! Scientists attribute record levels directly to your efforts.",
+    "Microorganism monthly newsletter names you 'Ecosystem Champion of the Year.'",
+    "STREAM REPORT: Flow rates strong, DO levels healthy, clicking levels extraordinary.",
+    "Friar Finds field team reports zero sludge, maximum droplets. Outstanding work!",
+    "You've out-clicked the rain. Meteorologists are taking notes.",
+    "Local snails sending their regards — and moving slightly faster in your honor.",
+    "Watershed Wednesday has been renamed Watershed Everyday in your honor.",
+    "Students at Friar Finds report morale is at an all-time high. Keep it flowing!",
+];
+
+let lastTickerIndex = -1;
+
+function showTickerMessage() {
+    // Don't show if a modal is open
+    if (
+        document.getElementById('ascendModal').classList.contains('active') ||
+        document.getElementById('resetModal').classList.contains('active') ||
+        document.getElementById('secretModal').classList.contains('active') ||
+        document.getElementById('achievementsModal').classList.contains('active') ||
+        document.getElementById('trivaModal').classList.contains('active')
+    ) return;
+
+    // Pick a random message, avoid repeating the last one
+    let index;
+    do {
+        index = Math.floor(Math.random() * tickerMessages.length);
+    } while (index === lastTickerIndex);
+    lastTickerIndex = index;
+
+    const ticker = document.getElementById('newsTicker');
+    document.getElementById('newsTickerText').textContent = tickerMessages[index];
+
+    // Slide in
+    ticker.classList.add('visible');
+
+    // Auto-dismiss after 7 seconds
+    clearTimeout(tickerDismissTimeout);
+    tickerDismissTimeout = setTimeout(dismissTicker, 7000);
+}
+
+let tickerDismissTimeout = null;
+
+function dismissTicker() {
+    document.getElementById('newsTicker').classList.remove('visible');
+    clearTimeout(tickerDismissTimeout);
+}
+
+document.getElementById('newsTickerClose').addEventListener('click', dismissTicker);
+
+// Fire every 3.29 minutes (197,400 ms)
+setInterval(showTickerMessage, 197400);
     </script>
+    
+    <div class="news-ticker" id="newsTicker">
+    <span class="news-ticker-label">📰 CREEK NEWS</span>
+    <span class="news-ticker-text" id="newsTickerText"></span>
+    <span class="news-ticker-close" id="newsTickerClose">✕</span>
+</div>
+    
 </body>
 </html>
