@@ -2387,7 +2387,7 @@ function handleTriviaAnswer(selectedIndex) {
 
     if (selectedIndex === triviaCorrectIndex) {
         gameState.triviaCorrect = (gameState.triviaCorrect || 0) + 1;
-        const bonus = perSecond * 10; // 10x per-second = added as a lump sum
+        const bonus = perSecond * 100; // 100x per-second = added as a lump sum
         gameState.droplets += bonus;
         gameState.allTimeDroplets += bonus;
         feedback.style.backgroundColor = '#1a6b2a';
@@ -2395,7 +2395,7 @@ function handleTriviaAnswer(selectedIndex) {
         feedback.innerHTML = `✅ Correct!<br><span style="font-size:14px; font-weight:normal;">+${formatNumber(bonus)} droplets bonus!</span>`;
     } else {
         gameState.triviaWrong = (gameState.triviaWrong || 0) + 1;
-        const penalty = perSecond * 0.1;
+        const penalty = perSecond * 20;
         gameState.droplets = Math.max(0, gameState.droplets - penalty);
         feedback.style.backgroundColor = '#6b1a1a';
         feedback.style.color = 'white';
