@@ -1077,6 +1077,25 @@ let purchaseAmount = 1;
 
 // Format numbers
 function formatNumber(num) {
+    if (num >= 1e100) return (num / 1e100).toFixed(2) + 'Ggl';
+    if (num >= 1e99) return (num / 1e99).toFixed(2) + 'Dtg';
+    if (num >= 1e96) return (num / 1e96).toFixed(2) + 'Utg';
+    if (num >= 1e93) return (num / 1e93).toFixed(2) + 'Tgt';
+    if (num >= 1e90) return (num / 1e90).toFixed(2) + 'Novg';
+    if (num >= 1e87) return (num / 1e87).toFixed(2) + 'Ocvg';
+    if (num >= 1e84) return (num / 1e84).toFixed(2) + 'Spvg';
+    if (num >= 1e81) return (num / 1e81).toFixed(2) + 'Sxvg';
+    if (num >= 1e78) return (num / 1e78).toFixed(2) + 'Qivg';
+    if (num >= 1e75) return (num / 1e75).toFixed(2) + 'Qavg';
+    if (num >= 1e72) return (num / 1e72).toFixed(2) + 'Tvg';
+    if (num >= 1e69) return (num / 1e69).toFixed(2) + 'Dvg';
+    if (num >= 1e66) return (num / 1e66).toFixed(2) + 'Uvg';
+    if (num >= 1e63) return (num / 1e63).toFixed(2) + 'Vgt';
+    if (num >= 1e60) return (num / 1e60).toFixed(2) + 'Nodc';
+    if (num >= 1e57) return (num / 1e57).toFixed(2) + 'Ocdc';
+    if (num >= 1e54) return (num / 1e54).toFixed(2) + 'Spdc';
+    if (num >= 1e51) return (num / 1e51).toFixed(2) + 'Sxdc';
+    if (num >= 1e48) return (num / 1e48).toFixed(2) + 'Qdc';
     if (num >= 1e45) return (num / 1e45).toFixed(2) + 'Qadc';
     if (num >= 1e42) return (num / 1e42).toFixed(2) + 'Tdc';
     if (num >= 1e39) return (num / 1e39).toFixed(2) + 'Dd';
