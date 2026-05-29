@@ -901,6 +901,7 @@
                     <button class="purchase-btn active" data-amount="1">1x</button>
                     <button class="purchase-btn" data-amount="10">10x</button>
                     <button class="purchase-btn" data-amount="100">100x</button>
+                    <button class="purchase-btn" data-amount="max">Max</button>
                 </div>
                 <div id="producersContainer"></div>
             </div>
@@ -1079,7 +1080,7 @@ let gameState = {
         { name: 'Friar Finds', emoji: '💻', desc: 'The power of data collection! Mr. Buckler produces 2x droplets', cost: 3500000000000000000000000, bought: false, effect: 'Mr. Buckler' },
         { name: 'Feed the Monster', emoji: '🧌', desc: "All your work has caught the attention of the Sludge Monster… Click faster!; Sludge Monster produced 2x droplets", cost: 5400000000000000000000000, bought: false, effect: 'Sludge Monster' },
         { name: 'Winning Attitude', emoji: '💪', desc: "That's the spirit! All Producers 5x droplets", cost: 10000000000000000000000000, bought: false, effect: 'all5' },
-        { name: 'Winner!', emoji: '🏆', desc: 'You have wasted enough time on this. Let us declare you have won! Visit the Friar Finds website for more; All Producers 10x production of droplets', cost: 100000000000000000000000000, bought: false, effect: 'all10' },
+        { name: 'Winner!', emoji: '🏆', desc: 'You have wasted enough time on this. Let us declare you have won! Visit the Friar Finds website for more; All Producers 10x production of droplets', cost: 100000000000000000000000000, bought: false, effect: 'all10x' },
     ]
 };
         // Purchase amount multiplier
@@ -1560,19 +1561,30 @@ function getAchievementBonus() {
     return Math.pow(1.005, unlockedCount); // 0.5% per achievement (multiplicative)
 }
         
-    // Calculate bulk purchase cost
-function getBulkCost(producerIndex, amount) {
+   function getBulkCost(producerIndex, amount) {
     const producer = gameState.producers[producerIndex];
-    let totalCost = 0;
     let tempCount = producer.count;
+
+    if (amount === 'max') {
+        let totalCost = 0;
+        let budget = gameState.droplets;
+        while (true) {
+            const nextCost = Math.floor(producer.baseCost * Math.pow(1.15, tempCount));
+            if (budget < nextCost) break;
+            budget -= nextCost;
+            totalCost += nextCost;
+            tempCount++;
+        }
+        return totalCost;
+    }
+
+    let totalCost = 0;
     let tempCost = producer.cost;
-    
     for (let i = 0; i < amount; i++) {
         totalCost += tempCost;
         tempCount++;
         tempCost = Math.floor(producer.baseCost * Math.pow(1.15, tempCount));
     }
-    
     return totalCost;
 }
 
@@ -1703,13 +1715,29 @@ document.getElementById('upgradesContainer').addEventListener('click', function(
 // Buy producer
 function buyProducer(index) {
     const producer = gameState.producers[index];
-    
+
+    // Calculate how many we can afford if purchasing max
+    let amount = purchaseAmount;
+    if (purchaseAmount === 'max') {
+        amount = 0;
+        let tempCount = producer.count;
+        let budget = gameState.droplets;
+        while (true) {
+            const nextCost = Math.floor(producer.baseCost * Math.pow(1.15, tempCount));
+            if (budget < nextCost) break;
+            budget -= nextCost;
+            tempCount++;
+            amount++;
+        }
+        if (amount === 0) return;
+    }
+
     // Calculate total cost for multiple purchases
     let totalCost = 0;
     let tempCount = producer.count;
     let tempCost = producer.cost;
-    
-    for (let i = 0; i < purchaseAmount; i++) {
+
+    for (let i = 0; i < amount; i++) {
         totalCost += tempCost;
         tempCount++;
         tempCost = Math.floor(producer.baseCost * Math.pow(1.15, tempCount));
@@ -1752,6 +1780,8 @@ function buyUpgrade(index) {
             gameState.producers.forEach(p => p.rate *= 5);
         } else if (upgrade.effect === 'all10') {
             gameState.producers.forEach(p => p.rate *= 1.10);
+        } else if (upgrade.effect === 'all10x') {
+            gameState.producers.forEach(p => p.rate *= 10);
         } else if (upgrade.effect === 'Raindrop100') {
             const producer = gameState.producers.find(p => p.name === 'Raindrop');
             if (producer) producer.rate *= 100;
@@ -1948,7 +1978,8 @@ document.querySelectorAll('.purchase-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.purchase-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        purchaseAmount = parseInt(this.getAttribute('data-amount'));
+        const val = this.getAttribute('data-amount');
+        purchaseAmount = val === 'max' ? 'max' : parseInt(val);
         renderProducers(); // Re-render to update costs
     });
 });
