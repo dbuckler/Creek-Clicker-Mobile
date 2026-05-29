@@ -466,9 +466,12 @@
         }
         
         .item-stats {
-            color: #1d3720;
-            font-size: 11px;
-        }
+    color: #1d3720;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
         
         .item.bought {
             background-color: #d4edda;
@@ -1629,8 +1632,8 @@ function renderProducers() {
                 <div class="item-content">
                     <div class="item-name">${producer.name} (${producer.count})</div>
                     <div class="item-desc">${producer.desc}</div>
-                    <div class="item-stats">Cost: ${purchaseAmount === 'max' ? '(max)' : purchaseAmount > 1 ? '(x' + purchaseAmount + ')' : ''}
-                </div>
+                    <div class="item-stats">Cost: ${bulkCost === Infinity ? 'Can\'t afford' : formatNumber(bulkCost)} ${purchaseAmount === 'max' ? '(max)' : purchaseAmount > 1 ? '(x' + purchaseAmount + ')' : ''} | ${formatNumber(producer.rate)}/sec</div>
+                    </div>
             </div>
         `;
     });
