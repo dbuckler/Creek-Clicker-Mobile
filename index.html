@@ -293,7 +293,7 @@
         }
         
         .achievement:hover .achievement-tooltip {
-            opacity: 10;
+            opacity: 1;
         }
         
         .achievements-progress {
@@ -1182,7 +1182,7 @@ const achievementList = [
 { id: 'droplets_1sx', emoji: '⚠️', desc: 'Earned 1 Sx All Time Droplets', check: () => gameState.allTimeDroplets >= 1e21 },
 { id: 'droplets_1sp', emoji: '☣️', desc: 'Earned 1 Sp All Time Droplets', check: () => gameState.allTimeDroplets >= 1e24 },
 { id: 'droplets_1oc', emoji: '☢️', desc: 'Earned 1 Oc All Time Droplets', check: () => gameState.allTimeDroplets >= 1e27 },
-{ id: 'droplets_1oc', emoji: '💥', desc: 'Earned 1 No All Time Droplets', check: () => gameState.allTimeDroplets >= 1e30 },
+{ id: 'droplets_1no', emoji: '💥', desc: 'Earned 1 No All Time Droplets', check: () => gameState.allTimeDroplets >= 1e30 },
     
     // Special achievements
     { id: 'first_visit', emoji: '👋', desc: 'Welcome to Creek Clicker!', check: () => true },
@@ -2052,8 +2052,8 @@ checkAscendEligibility();
 
 const triviaQuestions = [
     {
-        question: "Mr. Buckler",
-        options: ["David", "Mom", "Mom", "Mom"],
+        question: "What is the field of science that studies bodies of freshwater?",
+        options: ["Limnology", "Ecotoxicology", "Botany", "Ichthyology"],
         answer: 0 // index of the correct option (0 = A, 1 = B, 2 = C, 3 = D)
     },
     {
