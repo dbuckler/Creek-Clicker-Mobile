@@ -961,6 +961,17 @@
         </div>
     </div>
 </div>
+    <div id="trivaModal" class="secret-modal">
+    <div class="secret-modal-content" style="max-width: 600px;">
+        <h3 id="triviaTitle">🌊 Stream Ecology Quiz!</h3>
+        <p id="triviaQuestion" style="font-size: 16px; line-height: 1.6; margin-bottom: 25px;"></p>
+        <div id="triviaOptions" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+        <div id="triviaFeedback" style="display: none; padding: 15px; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 15px;"></div>
+        <div style="text-align: center;">
+            <button class="secret-submit" id="triviaDismiss" style="display: none; padding: 12px 30px;">Continue</button>
+        </div>
+    </div>
+</div>
         <div id="ascendModal" class="ascend-modal">
     <div class="ascend-modal-content">
         <h3>🕊️ Ascend</h3>
@@ -2037,6 +2048,134 @@ document.getElementById('ascendModal').addEventListener('click', function (e) {
 // Hook into the existing production loop to check eligibility over time
 setInterval(checkAscendEligibility, 2000);
 checkAscendEligibility();
+        // ─── Trivia System ───────────────────────────────────────────────────────────
+
+const triviaQuestions = [
+    {
+        question: "Mr. Buckler",
+        options: ["David", "Mom", "Mom", "Mom"],
+        answer: 0 // index of the correct option (0 = A, 1 = B, 2 = C, 3 = D)
+    },
+    {
+        question: "Mr. Buckler",
+        options: ["David", "Mom", "Mom", "Mom"],
+        answer: 0
+    },
+    {
+        question: "Mr. Buckler",
+        options: ["David", "Mom", "Mom", "Mom"],
+        answer: 0
+    },
+    // Add as many questions as you like following the same format
+];
+
+let triviaAnswered = false;
+let triviaCorrectIndex = -1;
+
+function showTriviaQuestion() {
+    // Don't show if another modal is already open
+    if (
+        document.getElementById('ascendModal').classList.contains('active') ||
+        document.getElementById('resetModal').classList.contains('active') ||
+        document.getElementById('secretModal').classList.contains('active') ||
+        document.getElementById('achievementsModal').classList.contains('active')
+    ) return;
+
+    // Pick a random question
+    const q = triviaQuestions[Math.floor(Math.random() * triviaQuestions.length)];
+    triviaCorrectIndex = q.answer;
+    triviaAnswered = false;
+
+    document.getElementById('triviaQuestion').textContent = q.question;
+    document.getElementById('triviaFeedback').style.display = 'none';
+    document.getElementById('triviaDismiss').style.display = 'none';
+
+    // Build option buttons
+    const optionsContainer = document.getElementById('triviaOptions');
+    optionsContainer.innerHTML = '';
+    q.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.style.cssText = `
+            background-color: #2d4a2f;
+            color: white;
+            border: 2px solid #a49659;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.2s;
+        `;
+        btn.addEventListener('mouseenter', () => {
+            if (!triviaAnswered) btn.style.backgroundColor = '#3d6040';
+        });
+        btn.addEventListener('mouseleave', () => {
+            if (!triviaAnswered) btn.style.backgroundColor = '#2d4a2f';
+        });
+        btn.addEventListener('click', () => handleTriviaAnswer(index));
+        optionsContainer.appendChild(btn);
+    });
+
+    document.getElementById('trivaModal').classList.add('active');
+}
+
+function handleTriviaAnswer(selectedIndex) {
+    if (triviaAnswered) return;
+    triviaAnswered = true;
+
+    const feedback = document.getElementById('triviaFeedback');
+    const options = document.getElementById('triviaOptions').querySelectorAll('button');
+    const perSecond = getTotalPerSecond();
+
+    // Disable all buttons and highlight correct/wrong
+    options.forEach((btn, i) => {
+        btn.style.cursor = 'not-allowed';
+        if (i === triviaCorrectIndex) {
+            btn.style.backgroundColor = '#1a6b2a';
+            btn.style.borderColor = '#4caf50';
+        } else if (i === selectedIndex && selectedIndex !== triviaCorrectIndex) {
+            btn.style.backgroundColor = '#6b1a1a';
+            btn.style.borderColor = '#f44336';
+        }
+    });
+
+    if (selectedIndex === triviaCorrectIndex) {
+        const bonus = perSecond * 10; // 10x per-second = added as a lump sum
+        gameState.droplets += bonus;
+        gameState.allTimeDroplets += bonus;
+        feedback.style.backgroundColor = '#1a6b2a';
+        feedback.style.color = 'white';
+        feedback.innerHTML = `✅ Correct!<br><span style="font-size:14px; font-weight:normal;">+${formatNumber(bonus)} droplets bonus!</span>`;
+    } else {
+        const penalty = perSecond * 0.5;
+        gameState.droplets = Math.max(0, gameState.droplets - penalty);
+        feedback.style.backgroundColor = '#6b1a1a';
+        feedback.style.color = 'white';
+        feedback.innerHTML = `❌ Incorrect!<br><span style="font-size:14px; font-weight:normal;">-${formatNumber(penalty)} droplets penalty!</span>`;
+    }
+
+    feedback.style.display = 'block';
+    document.getElementById('triviaDismiss').style.display = 'inline-block';
+
+    updateDisplay();
+    saveGame();
+    checkAchievements();
+}
+
+document.getElementById('triviaDismiss').addEventListener('click', function () {
+    document.getElementById('trivaModal').classList.remove('active');
+});
+
+// Close if clicking backdrop
+document.getElementById('trivaModal').addEventListener('click', function (e) {
+    if (e.target === this && triviaAnswered) {
+        this.classList.remove('active');
+    }
+});
+
+// Fire every 5 minutes
+setInterval(showTriviaQuestion, 5 * 60 * 1000);
     </script>
 </body>
 </html>
