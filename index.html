@@ -1525,8 +1525,9 @@ function updateStats() {
     }
 }
 
-// Update stats every 5 seconds
+// Update stats every 5 seconds, and once immediately on load
 setInterval(updateStats, 5000);
+setTimeout(updateStats, 500); // slight delay so loadGame finishes first
 
 // Secret modal submit
 document.getElementById('secretSubmit').addEventListener('click', function() {
@@ -2091,6 +2092,7 @@ savedData = localStorage.getItem('creekClickerSave');
     console.error('Failed to load game (starting fresh):', error);
 }
     gameState.timesLoaded = (gameState.timesLoaded || 0) + 1;
+    gameState.sessionStart = Date.now();
     
 updateDisplay();
 renderAchievements();
