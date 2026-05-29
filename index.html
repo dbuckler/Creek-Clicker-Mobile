@@ -1007,7 +1007,6 @@ let gameState = {
     allTimeDroplets: 0,
     clickPower: 1,
     totalClicks: 0,
-    visitedWebsite: false,
     timesLoaded: 0,
     ascendMultiplier: 1,
     secretAchievementClicks: 0,
@@ -1179,7 +1178,6 @@ const achievementList = [
     { id: 'welcome_back', emoji: '🔄', desc: 'Came back to play again!', check: () => gameState.timesLoaded >= 2 },
     { id: 'dedicated', emoji: '🫡', desc: 'Loaded the game 7 times', check: () => gameState.timesLoaded >= 7 },
     { id: 'addicted', emoji: '😍', desc: 'Loaded the game 14 times', check: () => gameState.timesLoaded >= 14 },
-    { id: 'visited_website', emoji: '🌐', desc: 'Visited Friar Finds Website', check: () => gameState.visitedWebsite },
     { id: 'one_of_everything', emoji: '🎁', desc: 'One of Everything', check: () => gameState.producers.every(p => p.count >= 1) },
     { id: 'all_upgrades', emoji: '⬆️', desc: 'Bought All Upgrades', check: () => gameState.upgrades.every(u => u.bought) },
     { id: 'if_not_spent', emoji: '💰', desc: 'If You Hadn\'t Spent It All...: Total Droplets equal 100Sp', check: () => gameState.allTimeDroplets >= 100000000000000000000000000 },
@@ -1889,12 +1887,6 @@ updateDisplay();
 renderAchievements();
 checkAchievements();
     }
-// Track website visits
-document.querySelector('.website-link a').addEventListener('click', function() {
-gameState.visitedWebsite = true;
-saveGame();
-checkAchievements();
-});
 // Offline / background production
 document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
@@ -1980,7 +1972,6 @@ document.getElementById('ascendConfirm').addEventListener('click', async functio
     gameState.allTimeDroplets = 0;
     gameState.clickPower = 1;
     gameState.totalClicks = 0;
-    gameState.visitedWebsite = false;
     gameState.secretAchievementClicks = 0;
     // Keep secretUnlocked so the boost doesn't stack on re-entry
     gameState.timesLoaded = 0;
