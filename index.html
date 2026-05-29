@@ -971,7 +971,6 @@
         <div class="stats-toggle-icon">+</div>
     </div>
     <div class="stats-content" id="statsContent" style="display:none;">
-        <div class="stat-row"><span class="stat-label">⏱️ Total Play Time</span><span class="stat-value" id="statPlayTime">0s</span></div>
         <div class="stat-row"><span class="stat-label">👆 Total Clicks</span><span class="stat-value" id="statClicks">0</span></div>
         <div class="stat-row"><span class="stat-label">⚡ Avg CPS</span><span class="stat-value" id="statCPS">0</span></div>
         <div class="stat-row"><span class="stat-label">💧 All Time Droplets</span><span class="stat-value" id="statAllTime">0</span></div>
@@ -1471,21 +1470,11 @@ document.getElementById('statsToggle').addEventListener('click', function () {
     icon.classList.toggle('expanded', !isOpen);
 });
 
-// Format play time into readable string
-function formatPlayTime(seconds) {
-    if (seconds < 60) return Math.floor(seconds) + 's';
-    if (seconds < 3600) return Math.floor(seconds / 60) + 'm ' + (Math.floor(seconds) % 60) + 's';
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    return h + 'h ' + m + 'm';
-}
-
 // Update stats panel
 function updateStats() {
     // Accumulate play time
     if (gameState.sessionStart) {
-        const sessionSeconds = (Date.now() - gameState.sessionStart) / 1000;
-        const totalSeconds = (gameState.totalPlayTime || 0) + sessionSeconds;
+        const totalSeconds = (Date.now() - gameState.sessionStart) / 1000;
 
         // Most productive producer (highest total output)
         let topProducer = 'None';
@@ -1502,7 +1491,6 @@ function updateStats() {
         const totalPurchases = gameState.producers.reduce((sum, p) => sum + p.count, 0);
         const upgradesBought = gameState.upgrades.filter(u => u.bought).length;
 
-        document.getElementById('statPlayTime').textContent = formatPlayTime(totalSeconds);
         document.getElementById('statClicks').textContent = formatNumber(gameState.totalClicks);
         document.getElementById('statCPS').textContent = avgCPS;
         document.getElementById('statAllTime').textContent = formatNumber(gameState.allTimeDroplets);
