@@ -864,6 +864,75 @@
 .ascend-cancel-btn:hover {
     background-color: #5a6268;
 }
+        .stats-box {
+    background-color: #a49659;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stats-box:hover {
+    background-color: #b5a76a;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.stats-title {
+    color: #1d3720;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stats-toggle-icon {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1d3720;
+    transition: transform 0.3s ease;
+}
+
+.stats-toggle-icon.expanded {
+    transform: rotate(45deg);
+}
+
+.stats-content {
+    margin-top: 12px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(29, 55, 32, 0.2);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #1d3720;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.stat-value {
+    color: #1d3720;
+    font-size: 12px;
+    font-weight: normal;
+    text-align: right;
+    max-width: 55%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
         
     </style>
 </head>
@@ -894,6 +963,28 @@
     <div class="ascend-requirement" id="ascendRequirement">Requires: 150 Sludge Monsters</div>
     <div class="ascend-requirement" id="ascendCount">Times Ascended: 0</div>
     </div>
+        <div class="stats-box" id="statsBox">
+    <div class="stats-header" id="statsToggle">
+        <div>
+            <div class="stats-title">📊 Statistics</div>
+        </div>
+        <div class="stats-toggle-icon">+</div>
+    </div>
+    <div class="stats-content" id="statsContent" style="display:none;">
+        <div class="stat-row"><span class="stat-label">⏱️ Total Play Time</span><span class="stat-value" id="statPlayTime">0s</span></div>
+        <div class="stat-row"><span class="stat-label">👆 Total Clicks</span><span class="stat-value" id="statClicks">0</span></div>
+        <div class="stat-row"><span class="stat-label">⚡ Avg CPS</span><span class="stat-value" id="statCPS">0</span></div>
+        <div class="stat-row"><span class="stat-label">💧 All Time Droplets</span><span class="stat-value" id="statAllTime">0</span></div>
+        <div class="stat-row"><span class="stat-label">📈 Peak DPS</span><span class="stat-value" id="statPeakDPS">0</span></div>
+        <div class="stat-row"><span class="stat-label">🏆 Top Producer</span><span class="stat-value" id="statTopProducer">None</span></div>
+        <div class="stat-row"><span class="stat-label">🛒 Total Purchases</span><span class="stat-value" id="statPurchases">0</span></div>
+        <div class="stat-row"><span class="stat-label">⬆️ Upgrades Bought</span><span class="stat-value" id="statUpgrades">0</span></div>
+        <div class="stat-row"><span class="stat-label">✅ Trivia Correct</span><span class="stat-value" id="statTriviaCorrect">0</span></div>
+        <div class="stat-row"><span class="stat-label">❌ Trivia Wrong</span><span class="stat-value" id="statTriviaWrong">0</span></div>
+        <div class="stat-row"><span class="stat-label">🕊️ Times Ascended</span><span class="stat-value" id="statAscended">0</span></div>
+        <div class="stat-row"><span class="stat-label">🔄 Times Loaded</span><span class="stat-value" id="statLoaded">0</span></div>
+    </div>
+</div>
         </div>
         
         <div class="right-section">
@@ -1025,6 +1116,12 @@ let gameState = {
     timesLoaded: 0,
     ascendMultiplier: 1,
     secretAchievementClicks: 0,
+    totalPlayTime: 0,
+    peakDPS: 0,
+    totalPurchases: 0,
+    triviaCorrect: 0,
+    triviaWrong: 0,
+    sessionStart: null,
     secretUnlocked: false,
     achievements: {},
     producers: [
@@ -1366,6 +1463,70 @@ document.getElementById('achievementsModal').addEventListener('click', function(
         closeAchievementsModal();
     }
 });
+
+// Stats panel toggle
+document.getElementById('statsToggle').addEventListener('click', function () {
+    const content = document.getElementById('statsContent');
+    const icon = document.querySelector('.stats-toggle-icon');
+    const isOpen = content.style.display !== 'none';
+    content.style.display = isOpen ? 'none' : 'block';
+    icon.classList.toggle('expanded', !isOpen);
+});
+
+// Format play time into readable string
+function formatPlayTime(seconds) {
+    if (seconds < 60) return Math.floor(seconds) + 's';
+    if (seconds < 3600) return Math.floor(seconds / 60) + 'm ' + (Math.floor(seconds) % 60) + 's';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return h + 'h ' + m + 'm';
+}
+
+// Update stats panel
+function updateStats() {
+    // Accumulate play time
+    if (gameState.sessionStart) {
+        const sessionSeconds = (Date.now() - gameState.sessionStart) / 1000;
+        const totalSeconds = (gameState.totalPlayTime || 0) + sessionSeconds;
+
+        // Peak DPS
+        const currentDPS = getTotalPerSecond();
+        if (currentDPS > (gameState.peakDPS || 0)) {
+            gameState.peakDPS = currentDPS;
+        }
+
+        // Most productive producer (highest total output)
+        let topProducer = 'None';
+        let topOutput = 0;
+        gameState.producers.forEach(p => {
+            const output = p.rate * p.count;
+            if (output > topOutput) {
+                topOutput = output;
+                topProducer = p.emoji + ' ' + p.name;
+            }
+        });
+
+        const avgCPS = totalSeconds > 0 ? (gameState.totalClicks / totalSeconds).toFixed(2) : '0';
+        const totalPurchases = gameState.producers.reduce((sum, p) => sum + p.count, 0);
+        const upgradesBought = gameState.upgrades.filter(u => u.bought).length;
+
+        document.getElementById('statPlayTime').textContent = formatPlayTime(totalSeconds);
+        document.getElementById('statClicks').textContent = formatNumber(gameState.totalClicks);
+        document.getElementById('statCPS').textContent = avgCPS;
+        document.getElementById('statAllTime').textContent = formatNumber(gameState.allTimeDroplets);
+        document.getElementById('statPeakDPS').textContent = formatNumber(gameState.peakDPS || 0) + '/s';
+        document.getElementById('statTopProducer').textContent = topProducer;
+        document.getElementById('statPurchases').textContent = formatNumber(totalPurchases);
+        document.getElementById('statUpgrades').textContent = upgradesBought + ' / ' + gameState.upgrades.length;
+        document.getElementById('statTriviaCorrect').textContent = gameState.triviaCorrect || 0;
+        document.getElementById('statTriviaWrong').textContent = gameState.triviaWrong || 0;
+        document.getElementById('statAscended').textContent = gameState.ascendCount || 0;
+        document.getElementById('statLoaded').textContent = gameState.timesLoaded || 0;
+    }
+}
+
+// Update stats every 5 seconds
+setInterval(updateStats, 5000);
 
 // Secret modal submit
 document.getElementById('secretSubmit').addEventListener('click', function() {
@@ -2178,6 +2339,7 @@ function handleTriviaAnswer(selectedIndex) {
     });
 
     if (selectedIndex === triviaCorrectIndex) {
+        gameState.triviaCorrect = (gameState.triviaCorrect || 0) + 1;
         const bonus = perSecond * 10; // 10x per-second = added as a lump sum
         gameState.droplets += bonus;
         gameState.allTimeDroplets += bonus;
@@ -2185,7 +2347,8 @@ function handleTriviaAnswer(selectedIndex) {
         feedback.style.color = 'white';
         feedback.innerHTML = `✅ Correct!<br><span style="font-size:14px; font-weight:normal;">+${formatNumber(bonus)} droplets bonus!</span>`;
     } else {
-        const penalty = perSecond * 0.5;
+        gameState.triviaWrong = (gameState.triviaWrong || 0) + 1;
+        const penalty = perSecond * 0.1;
         gameState.droplets = Math.max(0, gameState.droplets - penalty);
         feedback.style.backgroundColor = '#6b1a1a';
         feedback.style.color = 'white';
@@ -2195,6 +2358,7 @@ function handleTriviaAnswer(selectedIndex) {
     feedback.style.display = 'block';
     document.getElementById('triviaDismiss').style.display = 'inline-block';
 
+    gameState.sessionStart = Date.now();
     updateDisplay();
     saveGame();
     checkAchievements();
