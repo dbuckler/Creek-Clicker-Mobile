@@ -1184,7 +1184,8 @@ const achievementList = [
     { id: 'winner', emoji: '🏅', desc: 'Winner Winner Chicken Dinner: Unlock Winner! upgrade', check: () => gameState.upgrades.find(u => u.name === 'Winner!').bought },
     { id: 'still_playing', emoji: '🤯', desc: 'Why Are You Still Playing?: Total Droplets more than 999 Dc', check: () => gameState.allTimeDroplets >= 999000000000000000000000000000000000 },
     { id: 'secret_67', emoji: '❓', desc: 'Secret Achievement!: Can you guess it? See website', check: () => gameState.secretUnlocked },
-   { id: 'achievement_master', emoji: '👑', desc: 'Unlocked All Achievements!', check: () => {
+    { id: 'ascend_1', emoji: '🏵️', desc: 'Ascended for the first time', check: () => (gameState.ascendCount || 0) >= 1 },
+    { id: 'achievement_master', emoji: '👑', desc: 'Unlocked All Achievements!', check: () => {
     // Count how many achievements are unlocked (excluding this one)
     const unlockedCount = achievementList.filter(a => a.id !== 'achievement_master' && gameState.achievements[a.id]).length;
     // Total achievements minus this one
