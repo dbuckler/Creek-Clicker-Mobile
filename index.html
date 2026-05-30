@@ -2532,9 +2532,9 @@ function showTickerMessage() {
     // Slide in
     ticker.classList.add('visible');
 
-    // Auto-dismiss after 10 seconds
+    // Auto-dismiss after 7 seconds
     clearTimeout(tickerDismissTimeout);
-    tickerDismissTimeout = setTimeout(dismissTicker, 10000);
+    tickerDismissTimeout = setTimeout(dismissTicker, 7000);
 }
 
 let tickerDismissTimeout = null;
@@ -2544,16 +2544,18 @@ function dismissTicker() {
     clearTimeout(tickerDismissTimeout);
 }
 
-document.getElementById('newsTickerClose').addEventListener('click', dismissTicker);
-
-setInterval(showTickerMessage, 3000);
+    document.getElementById('newsTickerClose').addEventListener('click', dismissTicker);
+    
+    setTimeout(showTickerMessage, 3000);
+    setInterval(showTickerMessage, 3000);
+        
     </script>
     
     <div class="news-ticker" id="newsTicker">
-    <span class="news-ticker-label">📰 CREEK NEWS</span>
-    <span class="news-ticker-text" id="newsTickerText"></span>
-    <span class="news-ticker-close" id="newsTickerClose">✕</span>
-</div>
+        <span class="news-ticker-label">📰 CREEK NEWS</span>
+        <span class="news-ticker-text" id="newsTickerText"></span>
+        <span class="news-ticker-close" id="newsTickerClose">✕</span>
+    </div>
     
 </body>
 </html>
