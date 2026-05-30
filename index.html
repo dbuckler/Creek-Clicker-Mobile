@@ -1986,6 +1986,9 @@ function buyUpgrade(index) {
             gameState.producers.forEach(p => p.rate *= 1.10);
         } else if (upgrade.effect === 'all10x') {
             gameState.producers.forEach(p => p.rate *= 10);
+        } else if (upgrade.effect === 'Raindrop') {
+            const producer = gameState.producers.find(p => p.name === 'Raindrop');
+            if (producer) producer.rate *= 2;
         } else if (upgrade.effect === 'Raindrop100') {
             const producer = gameState.producers.find(p => p.name === 'Raindrop');
             if (producer) producer.rate *= 100;
