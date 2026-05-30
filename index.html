@@ -1551,7 +1551,6 @@ function updateStats() {
         const upgradesBought = gameState.upgrades.filter(u => u.bought).length;
 
         document.getElementById('statClicks').textContent = formatNumber(gameState.totalClicks);
-        document.getElementById('statAllTime').textContent = formatNumber(gameState.allTimeDroplets);
         document.getElementById('statTopProducer').textContent = topProducer;
         document.getElementById('statPurchases').textContent = formatNumber(totalPurchases);
         document.getElementById('statUpgrades').textContent = upgradesBought + ' / ' + gameState.upgrades.length;
