@@ -1989,6 +1989,60 @@ function buyUpgrade(index) {
         } else if (upgrade.effect === 'Raindrop') {
             const producer = gameState.producers.find(p => p.name === 'Raindrop');
             if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Student') {
+            const producer = gameState.producers.find(p => p.name === 'Student');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Stream') {
+            const producer = gameState.producers.find(p => p.name === 'Stream');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Riffle') {
+            const producer = gameState.producers.find(p => p.name === 'Riffle');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Run') {
+            const producer = gameState.producers.find(p => p.name === 'Run');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Pool') {
+            const producer = gameState.producers.find(p => p.name === 'Pool');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Riparian Zone') {
+            const producer = gameState.producers.find(p => p.name === 'Riparian Zone');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Organic Matter') {
+            const producer = gameState.producers.find(p => p.name === 'Organic Matter');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Algae') {
+            const producer = gameState.producers.find(p => p.name === 'Algae');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Microorganisms') {
+            const producer = gameState.producers.find(p => p.name === 'Microorganisms');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Aquatic Insects') {
+            const producer = gameState.producers.find(p => p.name === 'Aquatic Insects');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Minnow') {
+            const producer = gameState.producers.find(p => p.name === 'Minnow');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Crayfish') {
+            const producer = gameState.producers.find(p => p.name === 'Crayfish');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Frog') {
+            const producer = gameState.producers.find(p => p.name === 'Frog');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Turtle') {
+            const producer = gameState.producers.find(p => p.name === 'Turtle');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Snake') {
+            const producer = gameState.producers.find(p => p.name === 'Snake');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Predator') {
+            const producer = gameState.producers.find(p => p.name === 'Predator');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Mr. Buckler') {
+            const producer = gameState.producers.find(p => p.name === 'Mr. Buckler');
+            if (producer) producer.rate *= 2;
+        } else if (upgrade.effect === 'Sludge Monster') {
+            const producer = gameState.producers.find(p => p.name === 'Sludge Monster');
+            if (producer) producer.rate *= 2;
         } else if (upgrade.effect === 'Raindrop100') {
             const producer = gameState.producers.find(p => p.name === 'Raindrop');
             if (producer) producer.rate *= 100;
@@ -2007,11 +2061,6 @@ function buyUpgrade(index) {
         } else if (upgrade.effect === 'Pool50') {
             const producer = gameState.producers.find(p => p.name === 'Pool');
             if (producer) producer.rate *= 50;
-        }
-        } else {
-            // Handle all individual producer 2x multipliers (Stream, Riffle, Run, Pool, etc.)
-            const producer = gameState.producers.find(p => p.name === upgrade.effect);
-            if (producer) producer.rate *= 2;
         }
 
         scheduleUpdate();
