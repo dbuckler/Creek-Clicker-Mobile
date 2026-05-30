@@ -1219,7 +1219,7 @@ let gameState = {
         { name: 'New Species!', emoji: '🐠', desc: 'You found a new stream species! All Producers production is boosted 2%', cost: 15000000, bought: false, effect: 'all2' },
         { name: 'Coffee Boost', emoji: '☕️', desc: 'Caffeine in the veins works wonders. 100x click power', cost: 103000000, bought: false, effect: 'click100' },
         { name: 'That is a big fish', emoji: '🐋', desc: 'Big fishies live here. Pools produce 2x droplets', cost: 200000000, bought: false, effect: 'Pool' },
-        { name: 'Deep Dive', emoji: '🤿', desc: 'Plunging into the depths! Pools produce 50x droplets', cost: 1800000000, bought: false, effect: 'Pool50' },
+        { name: 'Deep Dive', emoji: '🤿', desc: 'Plunging into the depths! Pools produce 50x droplets', cost: 1800000000, bought: false, effect: 'Pool25' },
         { name: 'Planting New Trees', emoji: '🌱', desc: 'Grow the riparian zone! Riparian zones produce 2x droplets', cost: 3300000000, bought: false, effect: 'Riparian Zone' },
         { name: "It's Fall Y'all", emoji: '🍁', desc: 'Leaves drop into the stream. Organic matter produces 2x droplets', cost: 51000000000, bought: false, effect: 'Organic Matter' },
         { name: 'Photosynthesis', emoji: '🌞', desc: "Algae love the sun! Algae produces 2x droplets", cost: 60000000000, bought: false, effect: 'Algae' },
@@ -2058,9 +2058,9 @@ function buyUpgrade(index) {
         } else if (upgrade.effect === 'Run50') {
             const producer = gameState.producers.find(p => p.name === 'Run');
             if (producer) producer.rate *= 50;
-        } else if (upgrade.effect === 'Pool50') {
+        } else if (upgrade.effect === 'Pool25') {
             const producer = gameState.producers.find(p => p.name === 'Pool');
-            if (producer) producer.rate *= 50;
+            if (producer) producer.rate *= 25;
         }
 
         scheduleUpdate();
