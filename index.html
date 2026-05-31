@@ -2729,7 +2729,7 @@ const POWERUP_DEFINITIONS = [
     {
         label: '⚡ Click Surge!',
         desc: (v) => `Click power boosted by +${v} for ${POWERUP_DEFINITIONS[0].duration}s!`,
-        duration: 7,
+        duration: 10,
         value: () => Math.floor(Math.random() * 10) + 5, // +5 to +14
         apply(v) { gameState._puClickFlat = (gameState._puClickFlat || 0) + v; },
         remove(v) { gameState._puClickFlat = Math.max(0, (gameState._puClickFlat || 0) - v); },
@@ -2737,7 +2737,7 @@ const POWERUP_DEFINITIONS = [
     {
         label: '💧 Droplet Flood!',
         desc: (v) => `Droplet production boosted by +${v}% for ${POWERUP_DEFINITIONS[1].duration}s!`,
-        duration: 10,
+        duration: 15,
         value: () => Math.floor(Math.random() * 6) + 3, // +3% to +8%
         apply(v) { gameState._puProdPct = (gameState._puProdPct || 0) + v; },
         remove(v) { gameState._puProdPct = Math.max(0, (gameState._puProdPct || 0) - v); },
@@ -2766,7 +2766,7 @@ const POWERUP_DEFINITIONS = [
     {
         label: '⚡ Lightning Clicks!',
         desc: () => `Click power DOUBLED for ${POWERUP_DEFINITIONS[4].duration}s!`,
-        duration: 12,
+        duration: 18,
         value: () => 2,
         apply() { gameState._puClickMult = (gameState._puClickMult || 1) * 2; },
         remove() { gameState._puClickMult = Math.max(1, (gameState._puClickMult || 2) / 2); },
@@ -2774,7 +2774,7 @@ const POWERUP_DEFINITIONS = [
     {
         label: '🏭 Factory Mode!',
         desc: (v) => `All production boosted by +${v}% for ${POWERUP_DEFINITIONS[5].duration}s!`,
-        duration: 8,
+        duration: 12,
         value: () => Math.floor(Math.random() * 10) + 10, // +10% to +19%
         apply(v) { gameState._puProdPct = (gameState._puProdPct || 0) + v; },
         remove(v) { gameState._puProdPct = Math.max(0, (gameState._puProdPct || 0) - v); },
@@ -2782,7 +2782,7 @@ const POWERUP_DEFINITIONS = [
     {
         label: '🌪️ Whirlpool!',
         desc: () => `5x production surge for ${POWERUP_DEFINITIONS[6].duration}s!`,
-        duration: 6,
+        duration: 8,
         value: () => 5,
         apply() { gameState._puProdMult = (gameState._puProdMult || 1) * 5; },
         remove() { gameState._puProdMult = Math.max(1, (gameState._puProdMult || 5) / 5); },
