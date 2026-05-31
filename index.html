@@ -45,6 +45,26 @@
             width: 100%;
         }
         
+        .mute-button {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 99999;
+    background-color: #1d3720;
+    color: #a49659;
+    border: 2px solid #a49659;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.mute-button:hover {
+    background-color: #2d5a30;
+}
+        
         .achievements-box {
     background-color: #a49659;
     padding: 15px;
@@ -1062,6 +1082,8 @@
     </style>
 </head>
 <body>
+    <button class="mute-button" id="muteButton" title="Toggle Sound">🔊</button>
+    
     <h1>💧 Creek Clicker 🖱️</h1>
     
     <div class="container">
@@ -2027,6 +2049,7 @@ function buyProducer(index) {
     
     if (gameState.droplets >= totalCost) {
         gameState.droplets -= totalCost;
+        playSound('purchase');
         
         // Apply purchases
         for (let i = 0; i < amount; i++) {
@@ -2047,6 +2070,7 @@ function buyUpgrade(index) {
     if (!upgrade.bought && gameState.droplets >= upgrade.cost) {
         gameState.droplets -= upgrade.cost;
         upgrade.bought = true;
+        playSound('upgrade');
 
         if (upgrade.effect === 'click') {
             gameState.clickPower *= 2;
@@ -2155,6 +2179,7 @@ function handleClick(e) {
     gameState.droplets += boostedClickPower;
     gameState.allTimeDroplets += boostedClickPower;
     gameState.totalClicks++;
+    playSound('click');
     
     // Quick update of just the counter for instant feedback
     document.getElementById('dropletCount').textContent = formatNumber(gameState.droplets) + ' droplets';
@@ -2922,6 +2947,61 @@ setTimeout(() => {
     spawnPowerup();
     scheduleNextPowerup();
 }, 90000);
+
+// ─── Sound Effects ───────────────────────────────────────────────────────────
+
+let isMuted = false;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+    if (isMuted) return;
+
+    // AudioContext may be suspended on page load until user interaction
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'click') {
+        // Short, soft drip-like blip
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(520, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
+        gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.12);
+
+    } else if (type === 'purchase') {
+        // Two-tone ascending chime
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+        oscillator.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.22, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.28);
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.28);
+
+    } else if (type === 'upgrade') {
+        // Brighter three-step fanfare
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+        oscillator.frequency.setValueAtTime(650, audioCtx.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + 0.35);
+    }
+}
+
+// Mute button toggle
+document.getElementById('muteButton').addEventListener('click', function () {
+    isMuted = !isMuted;
+    this.textContent = isMuted ? '🔇' : '🔊';
+});
         
     </script>
     
