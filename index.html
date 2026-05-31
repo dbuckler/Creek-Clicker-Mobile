@@ -1319,7 +1319,7 @@ let gameState = {
         { name: 'New Species!', emoji: '🐠', desc: 'You found a new stream species! All Producers production is boosted 2%', cost: 15000000, bought: false, effect: 'all2' },
         { name: 'Coffee Boost', emoji: '☕️', desc: 'Caffeine in the veins works wonders. 100x click power', cost: 103000000, bought: false, effect: 'click100' },
         { name: 'That is a big fish', emoji: '🐋', desc: 'Big fishies live here. Pools produce 2x droplets', cost: 200000000, bought: false, effect: 'Pool' },
-        { name: 'Deep Dive', emoji: '🤿', desc: 'Plunging into the depths! Pools produce 50x droplets', cost: 1800000000, bought: false, effect: 'Pool25' },
+        { name: 'Deep Dive', emoji: '🤿', desc: 'Plunging into the depths! Pools produce 25x droplets', cost: 1800000000, bought: false, effect: 'Pool25' },
         { name: 'Planting New Trees', emoji: '🌱', desc: 'Grow the riparian zone! Riparian zones produce 2x droplets', cost: 3300000000, bought: false, effect: 'Riparian Zone' },
         { name: "It's Fall Y'all", emoji: '🍁', desc: 'Leaves drop into the stream. Organic matter produces 2x droplets', cost: 51000000000, bought: false, effect: 'Organic Matter' },
         { name: 'Photosynthesis', emoji: '🌞', desc: "Algae love the sun! Algae produces 2x droplets", cost: 60000000000, bought: false, effect: 'Algae' },
@@ -2723,104 +2723,107 @@ function dismissTicker() {
     setTimeout(showTickerMessage, 65000);
     setInterval(showTickerMessage, 197400);
 
-    // ─── Power-Up System ─────────────────────────────────────────────────────────
+   // ─── Power-Up System ─────────────────────────────────────────────────────────
 
 const POWERUP_DEFINITIONS = [
     {
         label: '⚡ Click Surge!',
         desc: (v) => `Click power boosted by +${v} for ${POWERUP_DEFINITIONS[0].duration}s!`,
         duration: 10,
-        value: () => Math.floor(Math.random() * 10) + 5, // +5 to +14
-        apply(v) { gameState._puClickFlat = (gameState._puClickFlat || 0) + v; },
-        remove(v) { gameState._puClickFlat = Math.max(0, (gameState._puClickFlat || 0) - v); },
+        value: () => Math.floor(Math.random() * 10) + 5,
     },
     {
         label: '💧 Droplet Flood!',
         desc: (v) => `Droplet production boosted by +${v}% for ${POWERUP_DEFINITIONS[1].duration}s!`,
         duration: 15,
-        value: () => Math.floor(Math.random() * 6) + 3, // +3% to +8%
-        apply(v) { gameState._puProdPct = (gameState._puProdPct || 0) + v; },
-        remove(v) { gameState._puProdPct = Math.max(0, (gameState._puProdPct || 0) - v); },
+        value: () => Math.floor(Math.random() * 6) + 3,
     },
     {
         label: '🔱 Triple Threat!',
         desc: () => `Click power TRIPLED for ${POWERUP_DEFINITIONS[2].duration}s!`,
         duration: 15,
         value: () => 3,
-        apply() { gameState._puClickMult = (gameState._puClickMult || 1) * 3; },
-        remove() { gameState._puClickMult = Math.max(1, (gameState._puClickMult || 3) / 3); },
     },
     {
         label: '🌊 Gusher!',
         desc: (v) => `Instant bonus — ${formatNumber(v)} free droplets!`,
-        duration: 0, // instant, no ticker countdown
-        value: () => getTotalPerSecond() * (Math.random() * 30 + 20), // 20–50s of production
-        apply(v) {
-            gameState.droplets += v;
-            gameState.allTimeDroplets += v;
-            updateDisplay();
-            checkAchievements();
-        },
-        remove() {}, // nothing to undo
+        duration: 0,
+        value: () => getTotalPerSecond() * (Math.random() * 30 + 20),
     },
     {
         label: '⚡ Lightning Clicks!',
         desc: () => `Click power DOUBLED for ${POWERUP_DEFINITIONS[4].duration}s!`,
         duration: 18,
         value: () => 2,
-        apply() { gameState._puClickMult = (gameState._puClickMult || 1) * 2; },
-        remove() { gameState._puClickMult = Math.max(1, (gameState._puClickMult || 2) / 2); },
     },
     {
         label: '🏭 Factory Mode!',
         desc: (v) => `All production boosted by +${v}% for ${POWERUP_DEFINITIONS[5].duration}s!`,
         duration: 12,
-        value: () => Math.floor(Math.random() * 10) + 10, // +10% to +19%
-        apply(v) { gameState._puProdPct = (gameState._puProdPct || 0) + v; },
-        remove(v) { gameState._puProdPct = Math.max(0, (gameState._puProdPct || 0) - v); },
+        value: () => Math.floor(Math.random() * 10) + 10,
     },
     {
         label: '🌪️ Whirlpool!',
         desc: () => `5x production surge for ${POWERUP_DEFINITIONS[6].duration}s!`,
         duration: 8,
         value: () => 5,
-        apply() { gameState._puProdMult = (gameState._puProdMult || 1) * 5; },
-        remove() { gameState._puProdMult = Math.max(1, (gameState._puProdMult || 5) / 5); },
     },
 ];
 
-// Patch getTotalPerSecond to respect active power-up multipliers
-const _origGetTotalPerSecond = getTotalPerSecond;
+// Runtime-only power-up state (never saved to storage)
+const activePowerupState = {
+    clickFlatBonus: 0,   // additive flat bonus to clickPower
+    clickMultBonus: 1,   // multiplicative bonus to clickPower
+    prodPctBonus:   0,   // additive % bonus to production
+    prodMultBonus:  1,   // multiplicative bonus to production
+};
+
+// Override getTotalPerSecond to apply runtime bonuses (no patching — just wrap once cleanly)
+const _baseTotalPerSecond = getTotalPerSecond;
 getTotalPerSecond = function () {
-    const base = _origGetTotalPerSecond();
-    const pctBoost = 1 + ((gameState._puProdPct || 0) / 100);
-    const multBoost = gameState._puProdMult || 1;
-    return base * pctBoost * multBoost;
+    const base = _baseTotalPerSecond();
+    const pct  = 1 + (activePowerupState.prodPctBonus / 100);
+    return base * pct * activePowerupState.prodMultBonus;
 };
 
-// Patch click handler to respect active click power-ups
-const _origHandleClick = dropletButton.onclick;
+// Override the click handler cleanly (replace, don't patch-on-patch)
 dropletButton.onclick = function (e) {
-    // Temporarily boost clickPower before the original handler runs
-    const flatBonus = gameState._puClickFlat || 0;
-    const multBonus = gameState._puClickMult || 1;
-    gameState.clickPower += flatBonus;
-    gameState.clickPower *= multBonus;
+    // Compute boosted click power for THIS click only — don't mutate gameState.clickPower
+    const base       = gameState.clickPower;
+    const achBonus   = getAchievementBonus();
+    const flat       = activePowerupState.clickFlatBonus;
+    const mult       = activePowerupState.clickMultBonus;
+    const boosted    = (base + flat) * mult * achBonus;
 
-    _origHandleClick.call(this, e);
+    gameState.droplets      += boosted;
+    gameState.allTimeDroplets += boosted;
+    gameState.totalClicks++;
+    playSound('click');
 
-    // Restore
-    gameState.clickPower /= multBonus;
-    gameState.clickPower -= flatBonus;
+    document.getElementById('dropletCount').textContent = formatNumber(gameState.droplets) + ' droplets';
+
+    const x = e.clientX || window.innerWidth  / 2;
+    const y = e.clientY || window.innerHeight / 3;
+
+    const floater = document.createElement('div');
+    floater.className = 'floating-number';
+    floater.textContent = '+' + formatNumber(boosted);
+    floater.style.left = x + 'px';
+    floater.style.top  = y + 'px';
+    document.body.appendChild(floater);
+    setTimeout(() => floater.remove(), 1000);
+
+    scheduleUpdate();
+    checkAchievements();
 };
 
-// Active power-up state
-let activePowerups = []; // { defIndex, value, expiresAt, timerEl }
-let powerupTickerTimeout = null;
+// Active power-up tracker
+let activePowerupsList = [];
+let powerupTickerTimeout  = null;
 let powerupTickerInterval = null;
 
 function showPowerupTicker(text, durationSeconds) {
-    const ticker = document.getElementById('powerupTicker');
+    const ticker     = document.getElementById('powerupTicker');
     const tickerText = document.getElementById('powerupTickerText');
     const tickerTimer = document.getElementById('powerupTickerTimer');
 
@@ -2835,10 +2838,8 @@ function showPowerupTicker(text, durationSeconds) {
         tickerTimer.textContent = `${remaining}s remaining`;
 
         powerupTickerInterval = setInterval(() => {
-            remaining--;
-            // Find the longest-running active (non-instant) power-up for display
             const now = Date.now();
-            const longestRemaining = activePowerups.reduce((max, pu) => {
+            const longestRemaining = activePowerupsList.reduce((max, pu) => {
                 const left = Math.ceil((pu.expiresAt - now) / 1000);
                 return left > max ? left : max;
             }, 0);
@@ -2851,69 +2852,92 @@ function showPowerupTicker(text, durationSeconds) {
             }
         }, 1000);
     } else {
-        // Instant power-up — show briefly then hide
+        // Instant — show briefly
         tickerTimer.textContent = '';
         powerupTickerTimeout = setTimeout(() => ticker.classList.remove('visible'), 4000);
     }
 }
 
 function activatePowerup(defIndex, popupEl) {
-    const def = POWERUP_DEFINITIONS[defIndex];
+    const def   = POWERUP_DEFINITIONS[defIndex];
     const value = def.value();
 
-    // Remove the popup element
     if (popupEl && popupEl.parentNode) popupEl.parentNode.removeChild(popupEl);
 
-    // Apply effect
-    def.apply(value);
+    // Apply effect into the runtime state object
+    if (defIndex === 0) {
+        // Click Surge — flat additive click bonus
+        activePowerupState.clickFlatBonus += value;
+    } else if (defIndex === 1 || defIndex === 5) {
+        // Droplet Flood / Factory Mode — additive % production bonus
+        activePowerupState.prodPctBonus += value;
+    } else if (defIndex === 2) {
+        // Triple Threat — multiplicative click bonus ×3
+        activePowerupState.clickMultBonus *= value;
+    } else if (defIndex === 3) {
+        // Gusher — instant droplets
+        gameState.droplets      += value;
+        gameState.allTimeDroplets += value;
+        updateDisplay();
+        checkAchievements();
+    } else if (defIndex === 4) {
+        // Lightning Clicks — multiplicative click bonus ×2
+        activePowerupState.clickMultBonus *= value;
+    } else if (defIndex === 6) {
+        // Whirlpool — multiplicative production bonus ×5
+        activePowerupState.prodMultBonus *= value;
+    }
 
-    const text = `${def.label} — ${def.desc(value)}`;
-    showPowerupTicker(text, def.duration);
+    showPowerupTicker(`${def.label} — ${def.desc(value)}`, def.duration);
 
     if (def.duration > 0) {
         const expiresAt = Date.now() + def.duration * 1000;
         const entry = { defIndex, value, expiresAt };
-        activePowerups.push(entry);
+        activePowerupsList.push(entry);
 
         setTimeout(() => {
-            def.remove(value);
-            activePowerups = activePowerups.filter(p => p !== entry);
-            // If no more active power-ups, hide ticker
-            if (activePowerups.length === 0) {
+            // Remove effect
+            if (defIndex === 0) {
+                activePowerupState.clickFlatBonus = Math.max(0, activePowerupState.clickFlatBonus - value);
+            } else if (defIndex === 1 || defIndex === 5) {
+                activePowerupState.prodPctBonus = Math.max(0, activePowerupState.prodPctBonus - value);
+            } else if (defIndex === 2) {
+                activePowerupState.clickMultBonus = Math.max(1, activePowerupState.clickMultBonus / value);
+            } else if (defIndex === 4) {
+                activePowerupState.clickMultBonus = Math.max(1, activePowerupState.clickMultBonus / value);
+            } else if (defIndex === 6) {
+                activePowerupState.prodMultBonus = Math.max(1, activePowerupState.prodMultBonus / value);
+            }
+
+            activePowerupsList = activePowerupsList.filter(p => p !== entry);
+
+            if (activePowerupsList.length === 0) {
                 clearInterval(powerupTickerInterval);
                 document.getElementById('powerupTicker').classList.remove('visible');
             }
         }, def.duration * 1000);
     }
-
-    saveGame();
 }
 
 function spawnPowerup() {
-    // Don't pile up too many at once
     const existing = document.querySelectorAll('.powerup-popup');
     if (existing.length >= 3) return;
 
     const defIndex = Math.floor(Math.random() * POWERUP_DEFINITIONS.length);
-
-    // Random position — keep away from edges
-    const margin = 80;
-    // Avoid the very top (where our ticker lives) and very bottom (news ticker)
-    const topMin = 80;
-    const topMax = window.innerHeight - 120;
-    const leftMin = margin;
-    const leftMax = window.innerWidth - margin;
+    const margin   = 80;
+    const topMin   = 80;
+    const topMax   = window.innerHeight - 120;
+    const leftMin  = margin;
+    const leftMax  = window.innerWidth - margin;
 
     const top  = Math.random() * (topMax - topMin) + topMin;
     const left = Math.random() * (leftMax - leftMin) + leftMin;
 
     const el = document.createElement('div');
-    el.className = 'powerup-popup';
-    el.textContent = '🛟';
-    el.style.top  = top  + 'px';
-    el.style.left = left + 'px';
-
-    // Slight random animation delay so multiple ones bob out of sync
+    el.className    = 'powerup-popup';
+    el.textContent  = '🛟';
+    el.style.top    = top  + 'px';
+    el.style.left   = left + 'px';
     el.style.animationDelay = (Math.random() * 0.8) + 's';
 
     el.addEventListener('click', (e) => {
@@ -2923,17 +2947,15 @@ function spawnPowerup() {
 
     document.body.appendChild(el);
 
-    // Auto-expire after 12 seconds if not clicked
     setTimeout(() => {
         if (el.parentNode) {
             el.style.transition = 'opacity 0.5s';
-            el.style.opacity = '0';
+            el.style.opacity    = '0';
             setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 500);
         }
     }, 12000);
 }
 
-// Spawn on a random interval between 20–55 seconds
 function scheduleNextPowerup() {
     const delay = Math.random() * 30000 + 90000;
     setTimeout(() => {
@@ -2942,7 +2964,6 @@ function scheduleNextPowerup() {
     }, delay);
 }
 
-// Kick off the first one after 30s so the player has time to settle in
 setTimeout(() => {
     spawnPowerup();
     scheduleNextPowerup();
