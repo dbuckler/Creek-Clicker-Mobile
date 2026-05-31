@@ -2910,7 +2910,7 @@ function spawnPowerup() {
 
 // Spawn on a random interval between 20–55 seconds
 function scheduleNextPowerup() {
-    const delay = Math.random() * 35000 + 20000; // 20s–55s
+    const delay = Math.random() * 30000 + 90000;
     setTimeout(() => {
         spawnPowerup();
         scheduleNextPowerup();
@@ -2921,7 +2921,7 @@ function scheduleNextPowerup() {
 setTimeout(() => {
     spawnPowerup();
     scheduleNextPowerup();
-}, 30000);
+}, 90000);
         
     </script>
     
