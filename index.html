@@ -1320,8 +1320,8 @@ let gameState = {
         { name: 'Coffee Boost', emoji: '☕️', desc: 'Caffeine in the veins works wonders. 100x click power', cost: 103000000, bought: false, effect: 'click100' },
         { name: 'That is a big fish', emoji: '🐋', desc: 'Big fishies live here. Pools produce 2x droplets', cost: 200000000, bought: false, effect: 'Pool' },
         { name: 'Deep Dive', emoji: '🤿', desc: 'Plunging into the depths! Pools produce 25x droplets', cost: 1800000000, bought: false, effect: 'Pool25' },
-        { name: 'Planting New Trees', emoji: '🌱', desc: 'Grow the riparian zone! Riparian zones produce 2x droplets', cost: 3300000000, bought: false, effect: 'Riparian Zone' },
-        { name: "It's Fall Y'all", emoji: '🍁', desc: 'Leaves drop into the stream. Organic matter produces 2x droplets', cost: 51000000000, bought: false, effect: 'Organic Matter' },
+        { name: 'Planting New Trees', emoji: '🌱', desc: 'Grow the riparian zone! Riparian zones produce 15x droplets', cost: 3300000000, bought: false, effect: 'Riparian Zone' },
+        { name: "It's Fall Y'all", emoji: '🍁', desc: 'Leaves drop into the stream. Organic matter produces 5x droplets', cost: 51000000000, bought: false, effect: 'Organic Matter' },
         { name: 'Photosynthesis', emoji: '🌞', desc: "Algae love the sun! Algae produces 2x droplets", cost: 60000000000, bought: false, effect: 'Algae' },
         { name: 'Biofilm', emoji: '🦠', desc: 'Fresh layer of bacteria, fungi, and protists on stream surfaces! Microorganisms produce 2x droplets', cost: 670000000000, bought: false, effect: 'Microorganisms' },
         { name: 'An alien?!', emoji: '👽', desc: 'Not actually aliens, but still strange looking! Aquatic Insects produce 2x droplets', cost: 10000000000000, bought: false, effect: 'Aquatic Insects' },
@@ -2108,10 +2108,10 @@ function buyUpgrade(index) {
             if (producer) producer.rate *= 2;
         } else if (upgrade.effect === 'Riparian Zone') {
             const producer = gameState.producers.find(p => p.name === 'Riparian Zone');
-            if (producer) producer.rate *= 2;
+            if (producer) producer.rate *= 15;
         } else if (upgrade.effect === 'Organic Matter') {
             const producer = gameState.producers.find(p => p.name === 'Organic Matter');
-            if (producer) producer.rate *= 2;
+            if (producer) producer.rate *= 5;
         } else if (upgrade.effect === 'Algae') {
             const producer = gameState.producers.find(p => p.name === 'Algae');
             if (producer) producer.rate *= 2;
