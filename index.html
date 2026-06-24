@@ -2728,9 +2728,9 @@ function dismissTicker() {
 const POWERUP_DEFINITIONS = [
     {
         label: '⚡ Click Surge!',
-        desc: (v) => `Click power boosted by +${v} for ${POWERUP_DEFINITIONS[0].duration}s!`,
+        desc: (v) => `Click power boosted by +${formatNumber(v)} for ${POWERUP_DEFINITIONS[0].duration}s!`,
         duration: 10,
-        value: () => Math.floor(Math.random() * 10) + 5,
+        value: () => gameState.clickPower * (Math.random() * 0.5 + 0.5),
     },
     {
         label: '💧 Droplet Flood!',
